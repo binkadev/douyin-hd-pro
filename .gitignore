@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.spec
+build/
+dist/
+release/
+.venv/
+venv/
+native/bin/*.exe
+!native/bin/.gitkeep
+.DS_Store
+Thumbs.db
+*.log

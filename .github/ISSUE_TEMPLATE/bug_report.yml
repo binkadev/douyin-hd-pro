@@ -1,0 +1,36 @@
+name: Báo lỗi
+about: Báo lỗi kỹ thuật của Douyin HD Pro
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Không gửi cookie, token hoặc URL media có chữ ký công khai."
+  - type: input
+    id: version
+    attributes:
+      label: Phiên bản Douyin HD Pro
+      placeholder: "1.0.2"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Môi trường
+      placeholder: "Windows 11 24H2 / Chrome 151"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Các bước tái hiện
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kết quả mong đợi
+  - type: textarea
+    id: actual
+    attributes:
+      label: Kết quả thực tế / log đã che dữ liệu nhạy cảm
