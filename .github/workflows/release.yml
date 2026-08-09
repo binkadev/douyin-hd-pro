@@ -4,12 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Phiên bản phát hành, ví dụ 1.0.2'
+        description: 'Phiên bản phát hành, ví dụ 1.0.3'
         required: true
         default: '1.0.2'
   push:
-    branches:
-      - master
     tags:
       - 'v*'
 
@@ -42,10 +40,8 @@ jobs:
         run: |
           if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
             $version = '${{ inputs.version }}'.TrimStart('v')
-          } elseif ('${{ github.ref_type }}' -eq 'tag') {
-            $version = '${{ github.ref_name }}'.TrimStart('v')
           } else {
-            $version = (Get-Content VERSION.txt -Raw).Trim().TrimStart('v')
+            $version = '${{ github.ref_name }}'.TrimStart('v')
           }
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "tag=v$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
