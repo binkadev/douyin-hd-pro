@@ -14,7 +14,7 @@
 
 > **Douyin HD Pro** được xây dựng theo hướng local-first: Extension quan sát luồng media ngay trong tab Douyin, còn Native Helper tải file trực tiếp về máy. Tool không dùng máy chủ trung gian của dự án để nhận hoặc lưu video.
 
-![Giao diện Douyin HD Pro](docs/assets/giao-dien-popup.png)
+![Giao diện Douyin HD Pro](docs/assets/giao-dien-popup.svg)
 
 ## Điểm nổi bật
 
