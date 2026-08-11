@@ -1,66 +1,62 @@
 # Native Helper
 
-Native Helper là tiến trình cục bộ nhận lệnh từ Chrome Extension qua Chrome Native Messaging và thực hiện tải file lớn ổn định hơn service worker.
+Native Helper v2.0.0 nhận lệnh từ Chrome qua Native Messaging và xử lý tải file, custom folder, verify và thao tác Windows.
 
-## Host name
+## Định danh
+
+Host:
 
 ```text
 com.douyin.hd_pro
 ```
 
-Extension ID ổn định của bản chính thức:
+Extension ID:
 
 ```text
 kfegbbjedamdmoiaomeaaopdeeeeedkm
 ```
 
-Native manifest chỉ cho phép origin của Extension ID này kết nối helper.
+## Cài đặt
 
-## Cài bản Windows Full
-
-Trong gói Release, chạy file ở thư mục gốc:
+Bản Windows Full:
 
 ```bat
 CAI-DAT-WINDOWS.bat
 ```
 
-Script dùng `native/bin/douyin_hd_native.exe` đã được GitHub Actions build từ source và đăng ký Native Messaging trong HKCU của user hiện tại. Không cần quyền Administrator.
-
-## Tự build từ source
+Tự build source:
 
 ```bat
 native\install_windows.bat
 ```
 
-Script tạo virtual environment tạm, cài PyInstaller rồi build entry point `host.py` (wrapper v1.1.0) và tự đóng gói `host_core.py` là downloader ổn định. Cần Python 3.11+ hoặc `winget` để cài Python khi thiếu.
+Không cần Administrator. Native manifest/registry nằm ở HKCU.
 
-## Gỡ cài đặt
+## Tính năng v2
 
-```bat
-native\uninstall_windows.bat
-```
+- folder picker Windows và ghi nhớ save folder;
+- whitelist các root người dùng đã cho phép;
+- sanitize subfolder template;
+- direct/HTTP Range/HLS downloader từ `host_core.py`;
+- tối đa 2 download đồng thời, phần còn lại ở trạng thái queued;
+- verify bằng FFprobe nếu có;
+- diagnostics folder/FFmpeg/FFprobe;
+- mở file/folder bằng request/response có `requestId`;
+- protocol major-version check từ Extension.
 
-Việc gỡ Native Helper không xóa video đã tải, kể cả khi người dùng đã đổi sang thư mục tùy chỉnh.
+## Action Native
 
-## Giao thức
-
-Chrome Native Messaging dùng `stdin/stdout`; mỗi JSON UTF-8 được đặt sau 4 byte little-endian biểu diễn độ dài payload.
-
-Action chính:
-
-- `hello`
-- `ping`
+- `hello`, `ping`
 - `download`
-- `open_file`
-- `open_folder`
-- `get_settings`
-- `choose_folder`
-- `set_save_folder`
+- `get_settings`, `choose_folder`, `set_save_folder`, `reset_settings`
+- `open_file`, `open_folder`
+- `verify_file`
+- `diagnostics`
 
-Progress có thể trả `bytes`, `total`, `percent`, `speed`, `speedBps`, `etaSeconds`. Lệnh mở file/thư mục chỉ chấp nhận đường dẫn nằm trong thư mục mặc định hoặc các thư mục người dùng đã chọn qua Douyin HD Pro. Danh sách cho phép được ghi trong cấu hình cục bộ của Native Helper.
+Download event: `queued`, `started`, `progress`, `merging`, `verifying`, `complete`, `error`.
 
-Helper không ghi log cookie/token theo mặc định và không có backend trung gian của dự án.
+## Bảo mật
 
-## v1.1.0: thao tác sau khi tải
+Helper chỉ mở đường dẫn nằm dưới folder mặc định hoặc folder người dùng đã chọn. Relative folder được sanitize và bắt buộc nằm dưới root save folder. URL download phải là HTTP/HTTPS.
 
-`host.py` dùng phản hồi có `requestId` cho **Mở video**, **Mở thư mục**, **Đọc cài đặt** và **Chọn thư mục**. Extension chỉ báo thành công sau khi Native Helper xác nhận thao tác, thay vì trả OK ngay khi vừa gửi lệnh.
+Không có backend trung gian và không ghi log cookie/token theo mặc định.

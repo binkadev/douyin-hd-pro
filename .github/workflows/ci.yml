@@ -19,12 +19,18 @@ jobs:
           node --check extension/background.js
           node --check extension/background/core.js
           node --check extension/background/capture.js
+          node --check extension/background/library.js
           node --check extension/background/download.js
           node --check extension/i18n.js
-          node --check extension/i18n-v104.js
-          node --check extension/i18n-v110.js
+          node --check extension/i18n-v200-vi.js
+          node --check extension/i18n-v200-en.js
+          node --check extension/i18n-v200-extra.js
           node --check extension/content.js
-          node --check extension/popup.js
+          node --check extension/popup-core.js
+          node --check extension/popup-actions.js
+          python -m unittest tests.test_native -v
+          node tests/test_background.js
+          node tests/test_static.js
       - name: Kiểm tra manifest và 10 ngôn ngữ
         run: |
           python - <<'PY'

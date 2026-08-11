@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Phiên bản phát hành, ví dụ 1.1.0'
+        description: 'Phiên bản phát hành, ví dụ 2.0.0'
         required: true
-        default: '1.1.0'
+        default: '2.0.0'
   push:
     tags: ['v*']
     branches: [master]
@@ -34,12 +34,18 @@ jobs:
           node --check extension/background.js
           node --check extension/background/core.js
           node --check extension/background/capture.js
+          node --check extension/background/library.js
           node --check extension/background/download.js
           node --check extension/i18n.js
-          node --check extension/i18n-v104.js
-          node --check extension/i18n-v110.js
+          node --check extension/i18n-v200-vi.js
+          node --check extension/i18n-v200-en.js
+          node --check extension/i18n-v200-extra.js
           node --check extension/content.js
-          node --check extension/popup.js
+          node --check extension/popup-core.js
+          node --check extension/popup-actions.js
+          python -m unittest tests.test_native -v
+          node tests/test_background.js
+          node tests/test_static.js
           $manifest = Get-Content extension/manifest.json -Raw | ConvertFrom-Json
           if ($manifest.version -ne (Get-Content VERSION.txt -Raw).Trim()) { throw 'VERSION.txt và manifest.json không khớp.' }
       - name: Build Native Helper

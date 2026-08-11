@@ -1,59 +1,56 @@
 # Chrome Extension
 
-Phần trình duyệt của Douyin HD Pro v1.1.0 sử dụng Chrome Manifest V3.
+Chrome Extension của Douyin HD Pro v2.0.0 dùng Manifest V3.
 
 ## Cấu trúc
 
-- `manifest.json`: quyền, locale, content script và service worker.
-- `background.js`: loader của background service worker.
-- `background/core.js`: phát hiện/chấm điểm media candidate và quét JSON/DOM/Performance.
-- `background/capture.js`: Chrome Debugger/CDP, Network events và Native Messaging.
-- `background/download.js`: tải BEST/từng candidate, Chrome fallback và trạng thái tiến trình.
-- `i18n.js`: từ điển runtime nền 10 ngôn ngữ; mặc định Tiếng Việt.
-- `i18n-v104.js`: lớp tương thích UI từ v1.0.4.
-- `i18n-v110.js`: onboarding, thư mục tùy chỉnh và phiên video của v1.1.0.
-- `_locales/`: metadata bản địa hóa cho Chrome Extension.
-- `content.js`: nút **↓ Tải HD** trên Douyin.
-- `popup.*`: giao diện chọn luồng, đổi ngôn ngữ, progress, tốc độ, ETA, mở file/thư mục.
+- `manifest.json`: permission, locale, service worker, content script.
+- `background.js`: loader.
+- `background/core.js`: session/candidate/media discovery.
+- `background/capture.js`: CDP Network + Native Messaging + session isolation.
+- `background/library.js`: history, preset, template, backup/update.
+- `background/download.js`: quality policy, duplicate handling, download/activity/diagnostics.
+- `i18n.js`: runtime i18n nền.
+- `i18n-v200-vi.js`, `i18n-v200-en.js`, `i18n-v200-extra.js`: chuỗi UX v2 tách theo nhóm ngôn ngữ.
+- `_locales/`: metadata 10 locale.
+- `content.js` / `content.css`: nhận diện video active và nút tải nổi.
+- `popup.*`: onboarding, Current/Activity/Settings.
 
-## Quyền
+## Luồng phiên video
 
-- `debugger`: dùng Chrome DevTools Protocol khi người dùng chủ động bắt luồng.
-- `nativeMessaging`: giao tác vụ tải với Native Helper cục bộ.
-- `downloads`: Chrome fallback và thao tác với file fallback.
-- `storage`: lưu ngôn ngữ bằng `chrome.storage.sync`.
-- `scripting`, `activeTab`, `tabs`: đọc metadata và quản lý đúng tab Douyin.
+```text
+Video A → capture → download → complete
+             ↓ chuyển video
+Video B → reset state A → session mới → auto capture hoặc chờ người dùng
+```
 
-## Phát triển
+Session epoch chặn request/response cũ quay lại sau reset.
 
-1. Mở `chrome://extensions`.
-2. Bật **Chế độ dành cho nhà phát triển**.
-3. Chọn **Tải tiện ích đã giải nén** và trỏ tới `extension/`.
-4. Sau thay đổi service worker/manifest, bấm **Reload** Extension.
-5. Reload tab Douyin trước khi test content script.
+## Quyền chính
 
-Kiểm tra nhanh:
+- `debugger`: CDP Network/Runtime cho tab Douyin.
+- `nativeMessaging`: tải/verify/custom folder với Helper cục bộ.
+- `downloads`: Chrome fallback.
+- `storage`: settings/history.
+- `scripting`, `activeTab`, `tabs`: metadata và đúng tab hiện tại.
+- host permission `douyin.com`; `api.github.com` chỉ dùng khi người dùng bấm kiểm tra cập nhật.
+
+## Test
 
 ```bash
 node --check background.js
 node --check background/core.js
 node --check background/capture.js
+node --check background/library.js
 node --check background/download.js
 node --check i18n.js
-node --check i18n-v104.js
-node --check i18n-v110.js
+node --check i18n-v200-vi.js
+node --check i18n-v200-en.js
+node --check i18n-v200-extra.js
 node --check content.js
-node --check popup.js
+node --check popup-core.js
+node --check popup-actions.js
+node ../tests/test_background.js
 ```
 
-Không đưa cookie, token, signed media URL hoặc request header nhạy cảm vào issue/log công khai.
-
-## Trải nghiệm v1.1.0
-
-- Onboarding là **một view riêng**, không dùng modal fixed trong popup.
-- Người dùng chọn được **thư mục lưu**, chế độ đổi video, tự bắt luồng, hành động sau tải và cách đặt tên.
-- Giao diện chính luôn hiển thị **Lưu vào** + nút **Thay đổi**.
-- **Mỗi video là một phiên riêng**: khi video thay đổi, candidate cũ và trạng thái tải của phiên cũ được loại khỏi UI.
-- Chế độ tự động reset rồi capture video mới; chế độ thủ công reset rồi chờ người dùng bấm **Bắt luồng**.
-- Nút **Đặt lại** cho phép xóa phiên hiện tại và bắt lại từ đầu.
-- Các nút mở file/thư mục/chọn thư mục chờ phản hồi thật từ Native Helper và hiển thị toast thành công/thất bại.
+Không đăng công khai request headers/signed media URL khi debug.

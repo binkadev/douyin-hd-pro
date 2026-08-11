@@ -1,33 +1,47 @@
-# Hướng dẫn cài nhanh Douyin HD Pro v1.0.4
+# Hướng dẫn Douyin HD Pro v2.0.0
 
-## Dành cho Windows 10/11
+## Cài đặt
 
-1. Giải nén toàn bộ gói `Douyin-HD-Pro-v1.0.4-Windows-Full.zip`.
-2. Chạy `CAI-DAT-WINDOWS.bat`. Không cần **Run as administrator**.
-3. Chrome sẽ mở `chrome://extensions`.
-4. Bật **Chế độ dành cho nhà phát triển**.
-5. Chọn **Tải tiện ích đã giải nén** và chọn thư mục `extension` nằm trong gói vừa giải nén.
-6. Mở Douyin, phát video 2–3 giây và bấm **↓ Tải HD** hoặc mở popup Douyin HD Pro để chọn chất lượng.
+1. Giải nén `Douyin-HD-Pro-v2.0.0-Windows-Full.zip`.
+2. Chạy `CAI-DAT-WINDOWS.bat` — không cần Administrator.
+3. Vào `chrome://extensions` → bật **Chế độ dành cho nhà phát triển**.
+4. Chọn **Tải tiện ích đã giải nén** → chọn thư mục `extension`.
+5. Mở Douyin và tải video.
 
-Video được lưu mặc định tại:
+## Lần đầu mở
 
-`%USERPROFILE%\Downloads\DouyinHD`
+Tool hỏi:
+- mục đích sử dụng;
+- ngôn ngữ;
+- thư mục lưu;
+- tự động hay thủ công khi đổi video;
+- chất lượng mặc định;
+- hành động sau tải;
+- có lưu lịch sử hay không.
 
-## Thiết lập lần đầu
+## Chuyển video
 
-Khi mở popup lần đầu, công cụ sẽ hỏi:
+**Tự động:** xóa stream cũ, tạo session mới; nếu đang capture thì phân tích video mới.
 
-1. Ngôn ngữ giao diện.
-2. Có tự bắt luồng khi mở công cụ hay không.
-3. Sau khi tải xong: hỏi mỗi lần / mở video / mở thư mục / không làm gì.
-4. Cách đặt tên file.
+**Thủ công:** xóa stream cũ, dừng capture và chờ bấm **Bắt luồng**.
 
-Mặc định là **Tiếng Việt** và **Hỏi tôi mỗi lần** sau khi tải xong. Có thể đổi lại bất cứ lúc nào bằng nút **⚙**.
+## Nếu video đã tải
 
-## Ngôn ngữ
+Tool có thể hỏi bạn để:
+- mở file cũ;
+- tải lại;
+- hoặc bỏ qua theo cài đặt.
 
-Mặc định công cụ dùng **Tiếng Việt**. Trong popup, bạn có thể đổi giữa 10 ngôn ngữ: Tiếng Việt, English, 简体中文, 繁體中文, 한국어, 日本語, ไทย, Bahasa Indonesia, Español và Français.
+## File lưu ở đâu?
 
-## Windows SmartScreen
+Đường dẫn luôn xuất hiện ở màn hình chính. Bấm **Thay đổi** để chọn folder khác.
 
-Native Helper được build tự động từ source công khai bằng GitHub Actions nhưng chưa có chứng thư Code Signing thương mại, vì vậy Windows SmartScreen có thể hiển thị cảnh báo reputation. Nếu muốn tự audit/build, chạy `native\install_windows.bat` thay cho bản prebuilt.
+## Hàng đợi
+
+Native Helper chạy tối đa 2 video cùng lúc. Nếu tải nhanh nhiều video, các video dư sẽ hiện **Đang chờ** trong tab **Hoạt động** và tự chạy khi có slot trống.
+
+## Báo lỗi
+
+Vào **Cài đặt → Kiểm tra hệ thống** → **Sao chép báo cáo chẩn đoán**. Gửi báo cáo cùng phần **Chi tiết kỹ thuật** nếu lỗi lặp lại.
+
+Nếu Native Helper báo khác phiên bản với Extension, chạy lại `CAI-DAT-WINDOWS.bat`.

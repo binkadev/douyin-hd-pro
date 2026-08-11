@@ -1,184 +1,273 @@
 # Douyin HD Pro
 
 <p align="center">
-  <strong>Trình tải video Douyin chất lượng cao dành cho Chrome trên Windows.</strong><br>
-  Tự bắt luồng media, so sánh chất lượng, tải tốc độ cao và theo dõi tiến trình ngay trong giao diện.
+  <strong>Trình tải video Douyin chất lượng cao, local-first, dành cho Chrome trên Windows.</strong><br>
+  Nhận diện đúng video đang xem, tách phiên theo từng video, chọn chất lượng, tải song song, xác minh file và quản lý lịch sử ngay trong popup.
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-ff2d55">
+  <img alt="Version" src="https://img.shields.io/badge/version-2.0.0-ff2d55">
   <img alt="Chrome MV3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4">
   <img alt="Languages" src="https://img.shields.io/badge/languages-10-25f4ee">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-2ea44f">
 </p>
 
-> **Douyin HD Pro** hoạt động theo hướng local-first. Extension quan sát request media trong chính tab Douyin, còn Native Helper tải file trực tiếp về máy. Dự án không vận hành máy chủ trung gian để nhận hoặc lưu video của người dùng.
+> Douyin HD Pro hoạt động theo hướng **local-first**. Dự án không có backend trung gian để nhận hoặc lưu video, URL media, cookie hay lịch sử tải của người dùng.
 
-## Có gì mới ở v1.1.0
+## v2.0.0 — bản tích hợp hoàn chỉnh
 
-- **Onboarding mới hoàn toàn**: là một màn hình riêng trong popup, không còn overlay/modal dễ bị cắt ở lần mở đầu tiên.
-- Font giao diện ưu tiên **Segoe UI Variable / Segoe UI / system-ui / Noto Sans**, hiển thị dấu tiếng Việt rõ và đồng nhất trên Windows.
-- **Chọn thư mục lưu tùy ý** ngay khi thiết lập; ở giao diện chính luôn hiển thị đường dẫn hiện tại và nút **Thay đổi**.
-- **Mỗi video = một phiên stream riêng**. Khi chuyển video, tool không giữ danh sách luồng cũ.
-- Chế độ **Tự động — Khuyên dùng**: phát hiện video mới → reset luồng cũ → tự bắt luồng mới.
-- Chế độ **Thủ công**: phát hiện video mới → reset luồng cũ → dừng capture → yêu cầu bấm **Bắt luồng**.
-- Sau khi tải xong, phiên hiện tại chuyển sang trạng thái **Đã xong video hiện tại** và hướng dẫn rõ hành vi khi đổi video.
-- Có nút **Đặt lại** để xóa phiên hiện tại và bắt lại từ đầu.
-- Sửa giao thức Native Helper: **Mở video / Mở thư mục / Chọn thư mục** đều chờ phản hồi thật bằng `requestId`.
-- Native Helper ghi nhớ thư mục đã chọn trên máy và whitelist các thư mục đã dùng để mở file an toàn.
-- Giữ đủ 10 ngôn ngữ và các thiết lập hành vi bằng Chrome Storage.
+v2.0.0 gom toàn bộ các cải tiến UX và cơ chế vận hành thành một kiến trúc thống nhất:
 
-## Ngôn ngữ hỗ trợ
-
-Mặc định là **Tiếng Việt**. Người dùng có thể chuyển ngay trong popup giữa:
-
-`Tiếng Việt · English · 简体中文 · 繁體中文 · 한국어 · 日本語 · ไทย · Bahasa Indonesia · Español · Français`
-
-## Tính năng chính
-
-### Bắt và xếp hạng luồng media
-
-Extension dùng Chrome DevTools Protocol thông qua quyền `debugger` để quan sát các request mạng của tab Douyin. Tool kết hợp nhiều tín hiệu để chấm điểm ứng viên:
-
-- MIME type và loại stream MP4/HLS.
-- Độ phân giải khi có metadata.
-- Bitrate khi có metadata.
-- Dung lượng response.
-- URL CDN và các dấu hiệu `origin`, `1080`, `uhd`, `4k`, `high`.
-- Dữ liệu media tìm được trong JSON/API/hydration của trang.
-
-Mục tiêu là ưu tiên **phiên bản tốt nhất mà Douyin thực sự cung cấp cho phiên xem hiện tại**. Tool không upscale video nguồn.
-
-### Native Helper tốc độ cao
-
-Native Helper viết bằng Python và đóng gói thành EXE bằng PyInstaller. Khi CDN hỗ trợ HTTP Range, helper có thể chia file thành nhiều vùng và tải song song. Nếu CDN không ổn định với Range, tool tự quay về tải tuần tự.
-
-HLS `.m3u8` được hỗ trợ theo hướng tải segment song song. Nếu stream MPEG-TS và máy có FFmpeg, helper có thể remux sang MP4 mà không encode lại.
-
-### UX tải xuống v1.1.0
-
-Popup hiển thị trực tiếp:
-
-- Trạng thái Native Helper.
-- Số luồng đã phát hiện.
-- Bản được đánh dấu **TỐT NHẤT**.
-- Resolution, bitrate, dung lượng và điểm xếp hạng khi có dữ liệu.
-- Tiến trình %.
-- Dung lượng đã tải / tổng dung lượng.
-- Tốc độ tải.
-- ETA.
-- Đường dẫn file sau khi hoàn tất.
-- Nút mở file và thư mục ngay từ popup.
-- Màn hình hỏi hành động sau tải và cài đặt có thể mở lại bằng nút ⚙.
-- Mọi nút đều hiển thị trạng thái thành công/thất bại.
+- **Nhận diện video đang active** bằng viewport, trạng thái phát, URL/video ID và media signature — phù hợp với Douyin dạng SPA/scroll feed.
+- **1 video = 1 phiên riêng**. Khi chuyển video, stream cũ bị loại bỏ; không dùng nhầm candidate của video trước.
+- State machine rõ ràng: `Đang chờ → Đang phân tích → Sẵn sàng → Đang tải → Đã xong / Có lỗi`.
+- Card **Video hiện tại** hiển thị thumbnail, tiêu đề, tác giả, video ID và trạng thái.
+- **Chống tải trùng** bằng lịch sử local: hỏi người dùng, tự tải lại hoặc tự bỏ qua.
+- **Hàng đợi tải thật**: Native Helper chạy tối đa 2 download song song; tác vụ dư chờ theo thứ tự và vẫn tiếp tục khi người dùng chuyển video.
+- Chọn chất lượng mặc định: **cao nhất / 1080p / 720p / nhẹ nhất / hỏi mỗi lần**.
+- Danh sách quality chỉ hiển thị thông tin dễ hiểu: resolution, bitrate, dung lượng, loại MP4/HLS — không đưa điểm nội bộ ra UI.
+- **Thư mục lưu tùy chỉnh** luôn có nút thay đổi ở onboarding, màn hình chính và Settings.
+- **Mẫu tên file** và **mẫu thư mục con** với `{author}`, `{title}`, `{date}`, `{time}`, `{video_id}`.
+- **Xác minh file sau tải**: dùng FFprobe khi có; nếu không có thì kiểm tra cấu trúc cơ bản.
+- Native Helper chỉ ghép audio/video bằng FFmpeg khi có stream audio tách riêng được xác định rõ; không tự ghép nguồn âm thanh mơ hồ để tránh sai nội dung.
+- **Diagnostics** kiểm tra Native Helper/version, quyền ghi folder, FFmpeg, FFprobe, Douyin, stream và hàng đợi; có nút sao chép báo cáo.
+- **Update checker** chỉ chạy khi người dùng chủ động bấm kiểm tra.
+- **Export / Import Settings** bằng JSON.
+- Tùy chỉnh nút nổi: luôn hiện / chỉ rõ khi hover / ẩn; trái/phải; trên/giữa/dưới.
+- **Privacy mode**: có thể tắt hoàn toàn lịch sử tải.
+- Onboarding có preset: **Cá nhân / Làm nội dung / Nghiên cứu / Nâng cao**.
+- Font hệ thống ưu tiên **Segoe UI Variable Text / Segoe UI / Noto Sans** để tiếng Việt rõ và đẹp trên Windows.
+- 10 ngôn ngữ: `Tiếng Việt · English · 简体中文 · 繁體中文 · 한국어 · 日本語 · ไทย · Bahasa Indonesia · Español · Français`.
 
 ## Cài nhanh trên Windows
 
-Tải file `Douyin-HD-Pro-v1.1.0-Windows-Full.zip` trong **Releases**, sau đó:
+Tải file **`Douyin-HD-Pro-v2.0.0-Windows-Full.zip`** trong Releases, sau đó:
 
 1. Giải nén toàn bộ ZIP.
 2. Chạy `CAI-DAT-WINDOWS.bat` — **không cần Run as administrator**.
-3. Chrome sẽ mở `chrome://extensions`.
+3. Chrome mở `chrome://extensions`.
 4. Bật **Chế độ dành cho nhà phát triển**.
 5. Chọn **Tải tiện ích đã giải nén**.
-6. Chọn thư mục `extension` nằm trong gói vừa giải nén.
-7. Mở Douyin, phát video khoảng 2–3 giây rồi bấm **↓ Tải HD** hoặc mở popup để chọn stream.
+6. Chọn thư mục `extension` trong gói vừa giải nén.
+7. Mở Douyin và sử dụng nút nổi hoặc popup.
 
-Video mặc định được lưu vào:
+Thư mục mặc định:
 
 ```text
 %USERPROFILE%\Downloads\DouyinHD
 ```
 
-Bạn có thể đổi sang thư mục khác ngay trong màn hình thiết lập hoặc bấm **Thay đổi** cạnh mục **Lưu vào** ở giao diện chính. Thư mục tùy chỉnh cần Native Helper; chế độ Chrome fallback vẫn bị giới hạn bởi cơ chế Downloads của Chrome.
+Bạn có thể đổi sang ổ/thư mục khác ngay trong tool.
+
+## Quy trình sử dụng
+
+### Chế độ tự động — khuyên dùng
+
+```text
+Video A
+  ↓
+Bắt luồng → chọn quality → tải
+  ↓
+Video A hoàn tất
+  ↓
+Chuyển sang Video B
+  ↓
+Reset stream A
+  ↓
+Tạo phiên B mới
+  ↓
+Nếu capture đang chạy → tự phân tích B
+```
+
+### Chế độ thủ công
+
+```text
+Video A hoàn tất
+  ↓
+Chuyển sang Video B
+  ↓
+Reset stream A + dừng capture
+  ↓
+Chờ người dùng bấm "Bắt luồng"
+```
+
+Request mạng của phiên cũ còn trả về muộn cũng bị loại bằng **session epoch**, giảm nguy cơ stream A quay lại sau khi đã sang B.
+
+## Chất lượng tải
+
+Tool chỉ chọn trong các phiên bản mà Douyin thực sự cung cấp cho phiên xem hiện tại; không upscale video.
+
+Các chế độ:
+
+- **Cao nhất có thể**: xếp hạng theo resolution, bitrate, dung lượng, MIME và tín hiệu source/original.
+- **Ưu tiên 1080p**: chọn candidate có cạnh ngắn gần 1080 nhất.
+- **Ưu tiên 720p**: chọn candidate có cạnh ngắn gần 720 nhất.
+- **Nhẹ nhất**: ưu tiên file có dung lượng nhỏ nhất khi metadata có sẵn.
+- **Hỏi mỗi lần**: người dùng chọn trực tiếp candidate trong popup.
+
+## Native Helper
+
+Native Helper viết bằng Python và được build thành EXE bằng PyInstaller.
+
+Extension v2 chỉ dùng Native Helper cùng major version 2.x. Nếu phát hiện Helper cũ, UI cảnh báo và download có thể fallback qua Chrome cho đến khi chạy lại `CAI-DAT-WINDOWS.bat`.
+
+### Direct MP4
+
+Nếu CDN hỗ trợ `HTTP Range`, helper chia file thành nhiều range và tải song song. Nếu Range không ổn định, nó tự fallback về tải tuần tự.
+
+### HLS
+
+HLS `.m3u8` được hỗ trợ theo hướng tải segment song song. Tool không vượt encryption/DRM. Với MPEG-TS và máy có FFmpeg, helper có thể remux sang MP4 mà không encode lại.
+
+### Xác minh file
+
+Sau khi tải xong:
+
+- kiểm tra file tồn tại và dung lượng hợp lý;
+- kiểm tra container cơ bản;
+- nếu có `ffprobe`, đọc video/audio stream, codec, duration và resolution;
+- kết quả được trả về popup dưới dạng **File đã được xác minh** hoặc cảnh báo rõ ràng.
+
+## Hàng đợi & lịch sử
+
+Tab **Hoạt động** gồm:
+
+- download đang chạy và tác vụ đang chờ;
+- tối đa 2 Native download chạy đồng thời;
+- % tiến trình và tốc độ;
+- tối đa lịch sử theo cài đặt (20–500 mục);
+- mở video / mở thư mục;
+- xóa từng mục hoặc toàn bộ lịch sử.
+
+Lịch sử được lưu bằng `chrome.storage.local` và **không gửi ra server**.
+
+## Chống tải trùng
+
+Khi cùng `video_id` hoặc video key đã có trong lịch sử, tool có thể:
+
+- hỏi người dùng;
+- luôn tải lại;
+- tự bỏ qua.
+
+Nếu chọn **Hỏi tôi**, popup cho phép **Mở file cũ** hoặc **Tải lại**.
+
+## Mẫu tên & thư mục
+
+Ví dụ tên file:
+
+```text
+{author} - {title}
+{date} - {video_id} - {title}
+```
+
+Ví dụ thư mục con:
+
+```text
+{author}/{date}
+```
+
+Native Helper luôn sanitize segment và giữ folder con nằm bên trong thư mục gốc đã được người dùng cho phép.
+
+## Diagnostics
+
+**Cài đặt → Kiểm tra hệ thống** hiển thị:
+
+- Native Helper và version;
+- thư mục lưu + quyền ghi;
+- FFmpeg;
+- FFprobe;
+- trạng thái tab Douyin;
+- số stream của video hiện tại;
+- số slot tải song song / số tác vụ đang chờ.
+
+Có thể bấm **Sao chép báo cáo chẩn đoán** để gửi kèm khi báo lỗi.
+
+## Quyền Chrome
+
+- `debugger`: dùng Chrome DevTools Protocol để quan sát request media của tab Douyin khi capture.
+- `nativeMessaging`: giao tiếp với Native Helper cục bộ.
+- `downloads`: Chrome fallback và thao tác file fallback.
+- `scripting`, `activeTab`, `tabs`: đọc metadata video và quản lý đúng tab.
+- `storage`: cài đặt, lịch sử local và ngôn ngữ.
+- `clipboardWrite`: sao chép đường dẫn file.
+- `https://api.github.com/*`: **chỉ dùng khi người dùng chủ động bấm “Kiểm tra cập nhật”**.
+
+## Quyền riêng tư
+
+- Không có server backend của dự án.
+- Không bán hoặc gửi dữ liệu người dùng cho bên thứ ba.
+- Không tự động gọi GitHub API ở nền; update check là thao tác chủ động.
+- Có thể tắt hoàn toàn lịch sử tải.
+- Tool không được thiết kế để vượt DRM, encryption hay nội dung riêng tư.
+
+Chi tiết: [`PRIVACY.md`](PRIVACY.md).
 
 ## Các gói phát hành
 
 | File | Dành cho |
 |---|---|
-| `Douyin-HD-Pro-v1.1.0-Windows-Full.zip` | Người dùng Windows, có sẵn Native Helper EXE |
-| `Douyin-HD-Pro-v1.1.0-Extension-Only.zip` | Chỉ cần Chrome Extension / Chrome fallback |
-| `Douyin-HD-Pro-v1.1.0-Source.zip` | Developer hoặc người muốn audit/build từ source |
+| `Douyin-HD-Pro-v2.0.0-Windows-Full.zip` | Bản khuyên dùng cho Windows, có Native Helper EXE |
+| `Douyin-HD-Pro-v2.0.0-Extension-Only.zip` | Chỉ Chrome Extension / Chrome fallback |
+| `Douyin-HD-Pro-v2.0.0-Source.zip` | Developer, audit hoặc tự build |
 | `douyin_hd_native.exe` | Native Helper độc lập |
-| `SHA256SUMS.txt` | Kiểm tra tính toàn vẹn artifact |
+| `SHA256SUMS.txt` | Checksum SHA-256 của artifacts |
 
 ## Kiến trúc
 
 ```mermaid
 flowchart LR
-    A[Douyin trong Chrome] --> B[Content Script]
-    A --> C[Background Service Worker]
-    C -->|Chrome DevTools Protocol| D[Network / JSON / CDN]
-    D --> C
-    C --> E[Quality ranking]
-    E --> F[Popup đa ngôn ngữ]
-    E --> G[Native Messaging]
-    G --> H[Native Helper]
-    H --> I[HTTP Range / HLS]
-    I --> J[Downloads/DouyinHD]
-    H -->|Progress / ETA / Complete| C
-    C --> F
+    A[Douyin SPA] --> B[Active Video Detector]
+    B --> C[Video Session State Machine]
+    C --> D[Chrome DevTools Protocol]
+    D --> E[Network / JSON / Hydration]
+    E --> F[Candidate Ranking]
+    F --> G[Popup / Floating Button]
+    F --> H[Download Queue]
+    H --> I[Native Messaging]
+    I --> J[Native Helper]
+    J --> K[Range / HLS / FFmpeg]
+    K --> L[Verification]
+    L --> M[User Folder]
+    L --> N[Local History]
 ```
 
-Xem thêm: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Xem thêm [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## Quyền Chrome
+## Developer
 
-Douyin HD Pro yêu cầu một số quyền mạnh vì chức năng của nó phụ thuộc trực tiếp vào luồng media đang phát:
+```bash
+python -m py_compile native/host.py native/host_core.py
+python -m unittest tests.test_native -v
+node tests/test_background.js
+node tests/test_static.js
+node --check extension/background.js
+node --check extension/background/core.js
+node --check extension/background/capture.js
+node --check extension/background/library.js
+node --check extension/background/download.js
+node --check extension/i18n.js
+node --check extension/i18n-v200.js
+node --check extension/content.js
+node --check extension/popup.js
+```
 
-- `debugger`: truy cập Chrome DevTools Protocol để đọc metadata request/response của tab Douyin khi người dùng bắt luồng.
-- `nativeMessaging`: giao tiếp với Native Helper chạy cục bộ.
-- `downloads`: dùng cho chế độ Chrome fallback và mở vị trí file fallback.
-- `scripting`, `activeTab`, `tabs`: đọc metadata trang và quản lý đúng tab Douyin.
-- `storage`: lưu lựa chọn ngôn ngữ, chế độ phiên video và thiết lập người dùng.
-- `clipboardWrite`: sao chép đường dẫn file sau khi tải.
-
-Tool không được thiết kế để vượt DRM, cơ chế mã hóa hoặc quyền truy cập riêng tư.
-
-## Quyền riêng tư
-
-- Không có server backend của dự án.
-- Không gửi URL media, cookie hoặc token tới server của dự án.
-- Native Helper chỉ nhận thông tin cần thiết từ Extension thông qua Native Messaging.
-- File được ghi trực tiếp vào máy người dùng.
-- Lựa chọn ngôn ngữ được lưu bằng Chrome Storage.
-
-Chi tiết: [`PRIVACY.md`](PRIVACY.md).
+GitHub Actions chạy syntax check, Native/background smoke tests, kiểm tra version/manifest và đúng 10 locale trước khi build Release.
 
 ## SmartScreen
 
-Binary trên GitHub Release được build tự động từ source bằng GitHub Actions nhưng hiện chưa có chứng thư Code Signing thương mại. Windows SmartScreen có thể hiển thị cảnh báo reputation cho EXE mới/chưa phổ biến.
+EXE trên Releases được build từ source bằng GitHub Actions nhưng chưa có chứng thư Code Signing thương mại. Windows SmartScreen có thể cảnh báo reputation với binary mới/chưa phổ biến.
 
-Nếu muốn tự audit và build Native Helper trên máy, chạy:
+Bạn có thể tự build từ source bằng:
 
 ```text
 native\install_windows.bat
 ```
 
-## Developer
-
-Kiểm tra source trước khi commit:
-
-```bash
-python -m py_compile native/host.py native/host_core.py
-node --check extension/background.js
-node --check extension/background/core.js
-node --check extension/background/capture.js
-node --check extension/background/download.js
-node --check extension/i18n.js
-node --check extension/i18n-v104.js
-node --check extension/i18n-v110.js
-node --check extension/content.js
-node --check extension/popup.js
-```
-
-GitHub Actions tự kiểm tra manifest, phiên bản và đủ 10 locale.
-
 ## Giới hạn
 
-Douyin có thể thay đổi cấu trúc frontend, CDN hoặc định dạng API bất kỳ lúc nào. Không có công cụ phía client nào đảm bảo lấy được mọi phiên bản chất lượng của mọi video. Với nội dung được mã hóa/DRM, Douyin HD Pro sẽ dừng thay vì cố vượt bảo vệ.
+Douyin có thể thay đổi frontend, API hoặc CDN bất kỳ lúc nào. Không thể đảm bảo mọi video luôn cung cấp cùng metadata/chất lượng. Nếu stream được mã hóa/DRM, tool dừng thay vì cố vượt bảo vệ.
 
-## Giấy phép
+## License
 
-MIT License. Xem [`LICENSE`](LICENSE).
+MIT License — xem [`LICENSE`](LICENSE).

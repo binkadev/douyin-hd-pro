@@ -1,44 +1,94 @@
 # Kiến trúc kỹ thuật
 
+Douyin HD Pro v2.0.0 được chia thành ba lớp: Chrome Extension, service worker điều phối và Native Helper cục bộ. Mục tiêu là giữ mỗi video thành một phiên độc lập, không trộn state giữa các video và không cần backend của dự án.
+
 ## 1. Chrome Extension
 
-Service worker được tách thành các module classic thông qua `importScripts`:
+Service worker nạp bốn module bằng `importScripts`:
 
-- `extension/background/core.js`: quản lý session/candidate, quét media từ Network, JSON/API, DOM, Performance Resource Timing và hydration data.
-- `extension/background/capture.js`: attach Chrome Debugger, bật CDP Network/Runtime, tiếp nhận sự kiện request/response và kết nối Native Messaging.
-- `extension/background/download.js`: chọn BEST/từng candidate, theo dõi Native/Chrome fallback, giữ trạng thái tải gần nhất và xử lý Mở file/Mở thư mục.
+- `background/core.js`: session, candidate, chấm điểm chất lượng, quét DOM/Performance/JSON/hydration và các tiện ích an toàn.
+- `background/capture.js`: Chrome Debugger/CDP, Network events, session epoch, phát hiện response cũ và cầu nối Native Messaging.
+- `background/library.js`: preset, lịch sử cục bộ, template tên file/thư mục, import/export settings và update checker theo yêu cầu người dùng.
+- `background/download.js`: chọn chất lượng, chống tải trùng, Chrome fallback, activity/history, diagnostics và thao tác file.
 
-Ứng viên được hợp nhất theo URL và chấm điểm từ MIME, độ phân giải, bitrate, dung lượng, CDN/quality hint và metadata nguồn.
+State chính của một video:
 
-## 2. Content Script
+```text
+WAITING → CAPTURING → READY → DOWNLOADING → COMPLETE
+                               └────────────→ ERROR
+```
 
-`extension/content.js` cung cấp nút **↓ Tải HD** trên Douyin, nhận progress event và hiển thị toast theo ngôn ngữ người dùng.
+Khi Douyin chuyển sang video khác, session epoch tăng, candidate/request cũ bị xóa. Response cũ về muộn không được nhập lại vào phiên mới.
 
-## 3. Popup + i18n
+## 2. Nhận diện video đang xem
 
-`extension/popup.*` hiển thị candidate, BEST, trạng thái Native Helper, phần trăm, dung lượng, tốc độ, ETA và hành động sau khi tải xong.
+`content.js` không chọn video đầu tiên trong DOM. Nó chấm điểm các thẻ `<video>` bằng:
 
-`extension/i18n.js` cung cấp runtime dictionary 10 ngôn ngữ; lựa chọn được lưu bằng `chrome.storage.sync`. `_locales` bản địa hóa metadata Extension.
+- phần trăm đang nằm trong viewport;
+- trạng thái đang phát;
+- `readyState`;
+- khoảng cách tới tâm màn hình.
 
-## 4. Native Messaging
+Context gồm video ID khi có, tiêu đề, tác giả, thumbnail, URL và media signature. Douyin là SPA nên content script theo dõi cả thay đổi URL lẫn DOM/media source.
 
-Native Host: `com.douyin.hd_pro`.
+## 3. Chọn chất lượng
 
-Extension gửi URL/header cần thiết sang `native/host.py`. Host chuẩn hóa header, chọn direct/HLS, tải file vào `Downloads\DouyinHD` và gửi progress về Extension.
+Candidate được hợp nhất theo URL và chấm điểm từ MIME/container, resolution, bitrate, dung lượng, CDN/source hint và watermark hint. UI không hiển thị score nội bộ; người dùng thấy resolution, bitrate, dung lượng và quality label.
 
-## 5. HTTP Range
+Các policy: cao nhất, ưu tiên 1080p, ưu tiên 720p, file nhỏ nhất hoặc chọn mỗi lần.
 
-Nếu CDN trả `206 Partial Content` với tổng kích thước hợp lệ, downloader chia file thành nhiều range và tải song song. Số worker tối đa 16 và được điều chỉnh theo CPU/kích thước file. Nếu CDN quảng cáo Range nhưng không ổn định, helper tự fallback về tải tuần tự.
+## 4. Download activity và hàng đợi
 
-## 6. HLS
+Các download đang chạy được lưu trong service worker để popup hiển thị Activity. Native Helper giới hạn tối đa hai tác vụ tải đồng thời; tác vụ dư được giữ ở trạng thái `queued` và bắt đầu khi có slot trống. Người dùng có thể chuyển sang video khác trong lúc file trước tiếp tục tải.
 
-Với `.m3u8`, helper chọn variant theo resolution/bandwidth rồi tải segment song song. Nếu output là MPEG-TS và FFmpeg có trong PATH, tool remux sang MP4 mà không re-encode.
+Lịch sử hoàn tất được lưu trong `chrome.storage.local` khi người dùng bật tính năng này. Có thể tắt hoàn toàn hoặc xóa lịch sử bất cứ lúc nào.
 
-Luồng HLS mã hóa được từ chối; dự án không triển khai cơ chế vượt DRM/mã hóa.
+## 5. Native Messaging
 
-## 7. Ranh giới bảo mật
+Host name:
 
-- Host permission giới hạn cho `douyin.com`.
-- Native Messaging manifest chỉ cho phép Extension ID cố định.
-- `open_file` / `open_folder` chỉ được mở đường dẫn bên trong `Downloads\DouyinHD`.
-- Không có backend dự án nhận URL media/cookie/token.
+```text
+com.douyin.hd_pro
+```
+
+Extension ID chính thức:
+
+```text
+kfegbbjedamdmoiaomeaaopdeeeeedkm
+```
+
+Native Helper v2 hỗ trợ:
+
+- custom save folder bằng Windows folder picker;
+- folder/subfolder template đã sanitize;
+- HTTP Range song song và HLS từ `host_core.py`;
+- hàng đợi tải có giới hạn concurrency;
+- verify file bằng FFprobe khi có, basic container check khi không có;
+- mở file/thư mục có whitelist;
+- diagnostics FFmpeg/FFprobe/folder permission;
+- request/response có `requestId` cho thao tác tương tác.
+
+Extension chỉ dùng Native Helper cùng major version 2.x. Nếu Helper cũ, download tự fallback qua Chrome và UI yêu cầu cài lại Helper.
+
+## 6. Lưu file và ranh giới đường dẫn
+
+Native Helper lưu vào folder do người dùng chọn. Mẫu thư mục con bị tách thành từng segment, loại ký tự cấm và giới hạn depth; đường dẫn cuối phải nằm dưới root đã cho phép.
+
+Các lệnh mở file/thư mục chỉ được phép với root mặc định hoặc folder người dùng từng chọn bằng Douyin HD Pro.
+
+Chrome fallback không thể ghi vào đường dẫn tuyệt đối tùy ý; nó dùng `Downloads/DouyinHD/...` theo giới hạn của Chrome Downloads API.
+
+## 7. Xác minh file
+
+Sau khi Native Helper tải xong:
+
+1. kiểm tra file tồn tại và kích thước hợp lệ;
+2. kiểm tra container cơ bản;
+3. nếu có FFprobe, đọc duration, video/audio stream, codec và resolution;
+4. trả metadata verification về popup.
+
+Dự án không vượt DRM/mã hóa. HLS có encryption không được giải mã bằng cơ chế né bảo vệ.
+
+## 8. Quyền riêng tư
+
+Không có backend của dự án, analytics hay telemetry. Update checker chỉ gọi GitHub API khi người dùng bấm **Kiểm tra cập nhật**. Lịch sử tải và settings nằm cục bộ trong Chrome/Native Helper.

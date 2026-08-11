@@ -16,7 +16,7 @@ function Find-Python {
 }
 
 Write-Host ''
-Write-Host '=== Douyin HD Pro v1.1.0 - Tự build Native Helper từ source ===' -ForegroundColor Cyan
+Write-Host '=== Douyin HD Pro v2.0.0 - Tự build Native Helper từ source ===' -ForegroundColor Cyan
 $Py = Find-Python
 if (-not $Py -and (Get-Command winget -ErrorAction SilentlyContinue)) {
     Write-Host 'Chưa có Python. Đang cài Python 3.12 bằng winget...' -ForegroundColor Yellow

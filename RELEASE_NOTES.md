@@ -1,31 +1,40 @@
-## Douyin HD Pro v1.1.0
+## Douyin HD Pro v2.0.0
 
-v1.1.0 là bản nâng cấp lớn về **quy trình sử dụng**, tập trung vào việc mỗi video là một phiên riêng biệt, tránh giữ nhầm luồng của video trước và cho người dùng kiểm soát rõ nơi lưu file.
+v2.0.0 là bản tích hợp lớn, tập trung vào **độ tin cậy khi lướt nhiều video liên tục**, khả năng tùy chỉnh và trải nghiệm như một sản phẩm hoàn chỉnh.
 
-### Điểm mới chính
+### Nổi bật
 
-- Onboarding lần đầu được làm lại thành **màn hình riêng**, không dùng modal cố định nên không còn lỗi cắt giao diện popup.
-- Giao diện mặc định dùng font hệ thống tối ưu cho tiếng Việt: **Segoe UI Variable / Segoe UI / system-ui / Noto Sans**.
-- Tăng kích thước chữ, khoảng cách và độ tương phản để tiếng Việt dễ đọc hơn.
-- Thêm **Chọn thư mục** ngay trong thiết lập đầu tiên và nút **Thay đổi** luôn xuất hiện ở giao diện chính cạnh đường dẫn lưu.
-- Native Helper lưu thư mục đã chọn trên máy và mọi video sau đó được tải vào đúng thư mục đó.
-- Hai chế độ khi chuyển video:
-  - **Tự động — Khuyên dùng:** reset toàn bộ luồng cũ và tự bắt luồng video mới.
-  - **Thủ công:** reset luồng cũ, dừng capture và yêu cầu người dùng bấm **Bắt luồng** cho video mới.
-- Sau khi một video tải xong, phiên video được đánh dấu **Đã xong**. Khi chuyển video, trạng thái và danh sách stream cũ được loại bỏ.
-- Thêm nút **Đặt lại** để xóa phiên hiện tại và bắt lại từ đầu.
-- Theo dõi thay đổi video trên trang Douyin SPA bằng URL + media signature, không phụ thuộc việc reload trang.
-- Bảo vệ khỏi response cũ quay lại sau khi reset bằng session epoch.
-- Sửa hoàn chỉnh giao thức Native Helper: mọi thao tác **Mở video / Mở thư mục / Chọn thư mục** đều có `requestId` và phản hồi thật.
-- Thư mục tùy chỉnh được ghi nhớ cục bộ; các thư mục đã chọn được whitelist để thao tác mở file an toàn.
-- Giữ đủ 10 ngôn ngữ: Tiếng Việt, English, 简体中文, 繁體中文, 한국어, 日本語, ไทย, Bahasa Indonesia, Español, Français.
+- Nhận diện video active theo viewport/play state/video ID/media signature.
+- 1 video = 1 session riêng, tự reset stream cũ khi chuyển video.
+- State machine rõ: Chờ → Phân tích → Sẵn sàng → Tải → Hoàn tất / Lỗi.
+- Card video hiện tại có thumbnail, tiêu đề, tác giả và ID.
+- Hàng đợi Native thật: tối đa 2 download song song, tác vụ dư chờ theo thứ tự; vẫn có thể tiếp tục lướt video.
+- Lịch sử local + chống tải trùng + mở lại file cũ.
+- Chọn quality: cao nhất / 1080p / 720p / nhẹ nhất / hỏi mỗi lần.
+- Thư mục tùy chỉnh ở onboarding, main screen và Settings.
+- Mẫu filename và subfolder bằng biến `{author}`, `{title}`, `{date}`, `{time}`, `{video_id}`.
+- Xác minh file sau download bằng FFprobe khi có, basic verification khi không có.
+- Diagnostics Native Helper/version / folder / FFmpeg / FFprobe / Douyin / stream / queue + sao chép báo cáo.
+- Update checker chủ động, không chạy nền.
+- Export / Import Settings JSON.
+- Tùy chỉnh nút tải nổi trên Douyin.
+- Tắt lịch sử để dùng theo hướng privacy-first.
+- Preset Cá nhân / Làm nội dung / Nghiên cứu / Nâng cao.
+- Font Segoe UI Variable / Segoe UI / Noto Sans tối ưu hiển thị tiếng Việt.
+- 10 ngôn ngữ được giữ nguyên; Tiếng Việt là mặc định với font hệ thống tối ưu dấu tiếng Việt.
 
 ### Gói khuyên dùng
 
-- **Douyin-HD-Pro-v1.1.0-Windows-Full.zip** — đầy đủ Extension + Native Helper cho Windows 10/11.
-- **Extension-Only.zip** — chỉ Chrome Extension, không hỗ trợ chọn thư mục tùy ý khi Native Helper không có.
+- **Douyin-HD-Pro-v2.0.0-Windows-Full.zip** — Windows 10/11.
+- **Extension-Only.zip** — chỉ extension.
 - **Source.zip** — source sạch để audit/build.
 - **douyin_hd_native.exe** — Native Helper độc lập.
-- **SHA256SUMS.txt** — checksum SHA-256.
+- **SHA256SUMS.txt** — SHA-256 artifacts.
 
-> Native Helper chưa có chứng thư Code Signing thương mại nên Windows SmartScreen có thể cảnh báo reputation. Source và workflow build đều công khai.
+> Native Helper chưa có Code Signing certificate thương mại nên SmartScreen có thể cảnh báo reputation. Source và pipeline build đều công khai.
+
+### Độ tin cậy
+
+- Extension kiểm tra major version của Native Helper trước khi dùng.
+- Có smoke test Native và background trong CI/Release pipeline.
+- Download hoàn tất được prune khỏi runtime state để hạn chế tăng bộ nhớ khi dùng lâu.

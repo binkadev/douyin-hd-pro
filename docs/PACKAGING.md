@@ -1,58 +1,48 @@
 # Build & Packaging
 
-Douyin HD Pro tách source và artifact để repository không lưu EXE build sẵn trong lịch sử Git.
+Repository không commit EXE build sẵn. Native Helper được GitHub Actions build trên `windows-latest`, sau đó đóng gói thành Release artifact.
 
-## Artifact Release
+## Artifact
 
-### Windows Full
+- `Douyin-HD-Pro-vX.Y.Z-Windows-Full.zip`: gói khuyên dùng, gồm Extension + Native Helper EXE + installer + tài liệu.
+- `Douyin-HD-Pro-vX.Y.Z-Extension-Only.zip`: chỉ Extension, dùng Chrome fallback nếu không có Helper.
+- `Douyin-HD-Pro-vX.Y.Z-Source.zip`: source sạch, không EXE/cache/build output.
+- `douyin_hd_native.exe`: Helper độc lập.
+- `SHA256SUMS.txt`: checksum SHA-256 cho artifact.
 
-Gói khuyên dùng cho Windows 10/11:
-
-```text
-Douyin-HD-Pro-vX.Y.Z-Windows-Full.zip
-```
-
-Bao gồm `extension/`, `native/`, Native Helper EXE do CI build, `CAI-DAT-WINDOWS.bat`, hướng dẫn, README và LICENSE. Cache Python (`__pycache__`, `.pyc`, `.pyo`) được loại khỏi artifact.
-
-### Extension Only
-
-```text
-Douyin-HD-Pro-vX.Y.Z-Extension-Only.zip
-```
-
-Dùng khi chỉ cần Chrome Extension/Chrome download fallback.
-
-### Source
-
-```text
-Douyin-HD-Pro-vX.Y.Z-Source.zip
-```
-
-Gói source loại binary build sẵn, build directory và Python cache để dễ audit.
-
-### Native Helper
-
-```text
-douyin_hd_native.exe
-```
-
-Binary được PyInstaller build trên `windows-latest`.
-
-### Checksum
-
-`SHA256SUMS.txt` chứa SHA-256 của các artifact Release.
-
-## Build trên máy
+## Build Native Helper trên Windows
 
 ```powershell
-python -m pip install pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin native/host_v104.py
-.\scripts\package_release.ps1 -Version 1.0.4
+python -m pip install --upgrade pyinstaller
+python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin --workpath build/native --specpath build native/host.py
+.\scripts\package_release.ps1 -Version 2.0.0
+```
+
+`host.py` import `host_core.py`; PyInstaller tự đưa module này vào bundle.
+
+## Kiểm tra trước build
+
+```bash
+python -m py_compile native/host.py native/host_core.py
+python -m unittest tests.test_native -v
+node tests/test_background.js
+node --check extension/background.js
+node --check extension/background/core.js
+node --check extension/background/capture.js
+node --check extension/background/library.js
+node --check extension/background/download.js
+node --check extension/i18n.js
+node --check extension/i18n-v200-vi.js
+node --check extension/i18n-v200-en.js
+node --check extension/i18n-v200-extra.js
+node --check extension/content.js
+node --check extension/popup-core.js
+node --check extension/popup-actions.js
 ```
 
 ## GitHub Actions
 
-- `.github/workflows/ci.yml`: kiểm tra Python, toàn bộ background module, UI JS, manifest/version và đúng 10 locale.
-- `.github/workflows/release.yml`: build Native Helper, đóng gói artifact, tạo checksum và phát hành GitHub Release.
+- `ci.yml`: syntax, smoke test Native/background, manifest/version và 10 locale.
+- `release.yml`: lặp lại validation, build EXE bằng PyInstaller, package, checksum và tạo GitHub Release.
 
-Executable chưa có Code Signing certificate thương mại có thể kích hoạt SmartScreen reputation warning. Source và workflow build được công khai để người dùng tự kiểm tra.
+Binary hiện chưa có Code Signing certificate thương mại, vì vậy SmartScreen có thể cảnh báo reputation. Người dùng có thể audit source/workflow hoặc tự build Helper.

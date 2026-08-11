@@ -11,7 +11,7 @@ Set-Location -LiteralPath $NativeDir
 
 Write-Host ''
 Write-Host '=====================================================' -ForegroundColor DarkGray
-Write-Host '  Douyin HD Pro v1.1.0 - Trình cài đặt Windows' -ForegroundColor Cyan
+Write-Host '  Douyin HD Pro v2.0.0 - Trình cài đặt Windows' -ForegroundColor Cyan
 Write-Host '=====================================================' -ForegroundColor DarkGray
 Write-Host ''
 
