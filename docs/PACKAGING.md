@@ -1,56 +1,58 @@
 # Build & Packaging
 
-Douyin HD Pro tách source và artifact để repository không phải lưu EXE build sẵn trong lịch sử Git.
+Douyin HD Pro tách source và artifact để repository không lưu EXE build sẵn trong lịch sử Git.
 
-## Gói Extension Only
+## Artifact Release
 
-Dành cho người chỉ cần phần Chrome Extension hoặc muốn dùng Chrome Downloads fallback.
+### Windows Full
 
-```text
-Douyin-HD-Pro-vX.Y.Z-Extension-Only.zip
-```
-
-## Gói Windows Full
-
-Bao gồm:
-
-- `extension/`;
-- `native/`;
-- `native/bin/douyin_hd_native.exe` do CI build;
-- README.
+Gói khuyên dùng cho Windows 10/11:
 
 ```text
 Douyin-HD-Pro-vX.Y.Z-Windows-Full.zip
 ```
 
-## Source Archive
+Bao gồm `extension/`, `native/`, Native Helper EXE do CI build, `CAI-DAT-WINDOWS.bat`, hướng dẫn, README và LICENSE. Cache Python (`__pycache__`, `.pyc`, `.pyo`) được loại khỏi artifact.
 
-Source sạch theo commit hiện tại:
+### Extension Only
+
+```text
+Douyin-HD-Pro-vX.Y.Z-Extension-Only.zip
+```
+
+Dùng khi chỉ cần Chrome Extension/Chrome download fallback.
+
+### Source
 
 ```text
 Douyin-HD-Pro-vX.Y.Z-Source.zip
 ```
 
-## Native Helper EXE
+Gói source loại binary build sẵn, build directory và Python cache để dễ audit.
 
-PyInstaller tạo:
+### Native Helper
 
 ```text
 douyin_hd_native.exe
 ```
 
-Executable chưa ký Code Signing có thể kích hoạt SmartScreen reputation warning. SHA-256 được phát hành kèm để kiểm tra tính toàn vẹn của artifact.
+Binary được PyInstaller build trên `windows-latest`.
+
+### Checksum
+
+`SHA256SUMS.txt` chứa SHA-256 của các artifact Release.
 
 ## Build trên máy
 
 ```powershell
 python -m pip install pyinstaller
 python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin native/host.py
-.\scripts\package_release.ps1 -Version 1.0.2
+.\scripts\package_release.ps1 -Version 1.0.3
 ```
 
 ## GitHub Actions
 
-Workflow `.github/workflows/release.yml` chạy trên `windows-latest`, build helper, đóng gói và tạo Release khi chạy thủ công hoặc khi có tag `v*`.
+- `.github/workflows/ci.yml`: kiểm tra Python, toàn bộ background module, UI JS, manifest/version và đúng 10 locale.
+- `.github/workflows/release.yml`: build Native Helper, đóng gói artifact, tạo checksum và phát hành GitHub Release.
 
-Workflow `.github/workflows/ci.yml` kiểm tra syntax JavaScript, manifest JSON và Python trên push/PR.
+Executable chưa có Code Signing certificate thương mại có thể kích hoạt SmartScreen reputation warning. Source và workflow build được công khai để người dùng tự kiểm tra.

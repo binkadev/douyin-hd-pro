@@ -1,49 +1,59 @@
 # Native Helper
 
-Native Helper là tiến trình cục bộ nhận lệnh từ Chrome Extension qua Native Messaging và thực hiện tải file lớn ổn định hơn service worker.
+Native Helper là tiến trình cục bộ nhận lệnh từ Chrome Extension qua Chrome Native Messaging và thực hiện tải file lớn ổn định hơn service worker.
 
 ## Host name
 
 ```text
-vn.binkadev.douyin_hd_pro
+com.douyin.hd_pro
 ```
 
-## Cài từ source
+Extension ID ổn định của bản chính thức:
+
+```text
+kfegbbjedamdmoiaomeaaopdeeeeedkm
+```
+
+Native manifest chỉ cho phép origin của Extension ID này kết nối helper.
+
+## Cài bản Windows Full
+
+Trong gói Release, chạy file ở thư mục gốc:
 
 ```bat
-install_windows.bat
+CAI-DAT-WINDOWS.bat
 ```
 
-Cần Python 3.10+ và Internet ở bước đầu để cài PyInstaller vào virtual environment tạm.
+Script dùng `native/bin/douyin_hd_native.exe` đã được GitHub Actions build từ source và đăng ký Native Messaging trong HKCU của user hiện tại. Không cần quyền Administrator.
 
-## Cài bản prebuilt
-
-Đặt `douyin_hd_native.exe` trong `native/bin/`, sau đó chạy:
+## Tự build từ source
 
 ```bat
-install_prebuilt_windows.bat
+native\install_windows.bat
 ```
 
-## Extension ID
-
-Installer hỏi Extension ID đang hiển thị ở `chrome://extensions`. ID được ghi vào `allowed_origins` của native manifest để chỉ extension đó được phép kết nối helper.
+Script tạo virtual environment tạm, cài PyInstaller rồi build `host.py`. Cần Python 3.11+ hoặc `winget` để cài Python khi thiếu.
 
 ## Gỡ cài đặt
 
 ```bat
-uninstall_windows.bat
+native\uninstall_windows.bat
 ```
 
-Gỡ helper/registry nhưng không xóa video đã tải trong `Downloads\DouyinHD`.
+Việc gỡ Native Helper không xóa video trong `Downloads\DouyinHD`.
 
 ## Giao thức
 
-Chrome Native Messaging dùng `stdin/stdout`. Mỗi message là JSON UTF-8 đứng sau 4 byte little-endian biểu diễn độ dài payload.
+Chrome Native Messaging dùng `stdin/stdout`; mỗi JSON UTF-8 được đặt sau 4 byte little-endian biểu diễn độ dài payload.
 
-Các action hiện có:
+Action chính:
 
+- `hello`
 - `ping`
 - `download`
+- `open_file`
 - `open_folder`
 
-Helper không ghi log chứa cookie/token theo mặc định.
+Progress có thể trả `bytes`, `total`, `percent`, `speed`, `speedBps`, `etaSeconds`. Lệnh mở file/thư mục chỉ chấp nhận đường dẫn nằm bên trong `Downloads\DouyinHD`.
+
+Helper không ghi log cookie/token theo mặc định và không có backend trung gian của dự án.

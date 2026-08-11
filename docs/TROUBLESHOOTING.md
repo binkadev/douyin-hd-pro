@@ -3,39 +3,39 @@
 ## Không thấy nút tải trên Douyin
 
 - Kiểm tra Extension đang bật.
-- Reload tab Douyin bằng `Ctrl + Shift + R`.
+- Reload tab bằng `Ctrl + Shift + R`.
 - Đảm bảo URL thuộc `douyin.com`.
 
 ## Danh sách luồng trống
 
 - Bấm **Bắt luồng**.
 - Cho video chạy 2–3 giây.
-- Thử chuyển chất lượng/phát lại để trình duyệt tạo request media mới.
+- Thử phát lại hoặc chuyển chất lượng để trình duyệt tạo request media mới.
 
-## Tải xong nhưng không thấy trong Chrome Downloads
+## Tải xong nhưng không thấy file
 
-Native Helper ghi trực tiếp vào:
+Native Helper lưu trực tiếp vào:
 
 ```text
 %USERPROFILE%\Downloads\DouyinHD
 ```
 
-Mở `Win + R`, dán đường dẫn trên và Enter.
+Từ v1.0.3, popup có nút **Mở video** và **Mở thư mục** sau khi tải hoàn tất.
 
 ## `Receiving end does not exist`
 
-Dùng v1.0.2 trở lên. Nếu vừa cập nhật Extension, bấm Reload trên `chrome://extensions` và reload tab Douyin.
+Bản v1.0.2+ đã tránh gửi message tới tab không có content script. Nếu vừa cập nhật Extension, bấm **Reload** ở `chrome://extensions` rồi reload tab Douyin.
 
-## PyInstaller từ chối chạy trong System32
+## PyInstaller từ chối chạy trong `System32`
 
-Dùng installer v1.0.2 trở lên. Script đã tự `Set-Location` về thư mục native/build.
+Installer v1.0.2+ tự chuyển working directory về thư mục build. Không chạy file BAT bằng **Run as administrator** nếu không cần thiết.
 
 ## Native Helper không kết nối
 
-1. Chạy lại installer.
-2. Kiểm tra Extension ID là `kfegbbjedamdmoiaomeaaopdeeeeedkm`.
+1. Chạy `CAI-DAT-WINDOWS.bat` trong gói Windows Full.
+2. Kiểm tra Extension ID: `kfegbbjedamdmoiaomeaaopdeeeeedkm`.
 3. Đóng/mở lại Chrome.
-4. Kiểm tra key:
+4. Kiểm tra registry:
 
 ```text
 HKCU\Software\Google\Chrome\NativeMessagingHosts\com.douyin.hd_pro
@@ -43,8 +43,12 @@ HKCU\Software\Google\Chrome\NativeMessagingHosts\com.douyin.hd_pro
 
 ## SmartScreen
 
-Release build sẵn có thể bị cảnh báo vì chưa có Code Signing certificate. Không cần tắt SmartScreen toàn hệ thống. Nếu muốn tránh binary build sẵn, dùng `native/install_windows.bat` để build từ source trực tiếp trên máy.
+Binary Release được build bằng GitHub Actions nhưng chưa có Code Signing certificate thương mại nên Windows có thể hiển thị cảnh báo reputation. Không cần tắt SmartScreen toàn hệ thống. Nếu muốn tự audit/build, dùng `native\install_windows.bat`.
 
 ## HLS tải ra `.ts`
 
-Cài FFmpeg vào PATH rồi thử lại nếu bạn muốn remux sang `.mp4`. Tool không re-encode, nên chất lượng hình ảnh không bị giảm bởi bước remux.
+Nếu stream là MPEG-TS, cài FFmpeg vào PATH để helper remux sang `.mp4`. Bước remux dùng stream copy, không re-encode.
+
+## Đổi ngôn ngữ
+
+Mở popup Extension và chọn ngôn ngữ ở góc trên bên phải. Lựa chọn được đồng bộ qua `chrome.storage.sync`. Mặc định là Tiếng Việt.
