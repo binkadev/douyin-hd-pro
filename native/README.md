@@ -32,7 +32,7 @@ Script dùng `native/bin/douyin_hd_native.exe` đã được GitHub Actions buil
 native\install_windows.bat
 ```
 
-Script tạo virtual environment tạm, cài PyInstaller rồi build `host.py`. Cần Python 3.11+ hoặc `winget` để cài Python khi thiếu.
+Script tạo virtual environment tạm, cài PyInstaller rồi build entry point `host_v104.py` (tái sử dụng downloader ổn định trong `host.py`). Cần Python 3.11+ hoặc `winget` để cài Python khi thiếu.
 
 ## Gỡ cài đặt
 
@@ -57,3 +57,8 @@ Action chính:
 Progress có thể trả `bytes`, `total`, `percent`, `speed`, `speedBps`, `etaSeconds`. Lệnh mở file/thư mục chỉ chấp nhận đường dẫn nằm bên trong `Downloads\DouyinHD`.
 
 Helper không ghi log cookie/token theo mặc định và không có backend trung gian của dự án.
+
+
+## v1.0.4: thao tác sau khi tải
+
+`host_v104.py` bổ sung phản hồi có `requestId` cho **Mở video** và **Mở thư mục**. Extension chỉ báo thành công sau khi Native Helper xác nhận thao tác, thay vì trả OK ngay khi vừa gửi lệnh.

@@ -82,12 +82,24 @@ chrome.debugger.onEvent.addListener((source, method, params) => {
   }
 });
 
+const pendingNativeOps = new Map();
+
 function connectNative() {
   if (nativePort) return;
   try {
     nativePort = chrome.runtime.connectNative(HOST_NAME);
     nativePort.onMessage.addListener(msg => {
       nativeReady = true;
+      if (msg?.type === 'open_result' && msg.requestId) {
+        const pending = pendingNativeOps.get(msg.requestId);
+        if (pending) {
+          pendingNativeOps.delete(msg.requestId);
+          clearTimeout(pending.timer);
+          if (msg.ok) pending.resolve(msg);
+          else pending.reject(new Error(msg.error || 'Native operation failed'));
+        }
+        return;
+      }
       const downloadId = msg?.downloadId;
       let owner = null;
       if (downloadId) {
@@ -102,16 +114,23 @@ function connectNative() {
         void safeTabMessage(owner, {type:'NATIVE_EVENT', tabId:owner, event:downloadStates.get(downloadId) || msg});
         void safeRuntimeMessage({type:'NATIVE_EVENT', tabId:owner, event:downloadStates.get(downloadId) || msg});
         void broadcastState(owner);
-      } else {
+        if (msg?.type === 'complete' && typeof maybeHandleAfterDownload === 'function') void maybeHandleAfterDownload(owner, downloadStates.get(downloadId) || msg);
+      } else if (msg?.type !== 'hello' && msg?.type !== 'pong') {
         void safeRuntimeMessage({type:'NATIVE_EVENT', event:msg});
       }
     });
     nativePort.onDisconnect.addListener(() => {
+      const err = chrome.runtime.lastError?.message || 'Native Helper disconnected';
       nativePort = null;
       nativeReady = false;
+      for (const [id,pending] of pendingNativeOps) {
+        clearTimeout(pending.timer);
+        pending.reject(new Error(err));
+        pendingNativeOps.delete(id);
+      }
       for (const [tabId] of sessions) broadcastState(tabId);
     });
-    nativePort.postMessage({action:'hello', version:'1.0.3'});
+    nativePort.postMessage({action:'hello', version:'1.0.4'});
   } catch {
     nativePort = null;
     nativeReady = false;
@@ -120,7 +139,7 @@ function connectNative() {
 
 connectNative();
 
-async function ensureNative(timeoutMs = 700) {
+async function ensureNative(timeoutMs = 1200) {
   connectNative();
   if (nativeReady && nativePort) return true;
   const end = Date.now() + timeoutMs;
@@ -130,4 +149,22 @@ async function ensureNative(timeoutMs = 700) {
     if (!nativePort) break;
   }
   return false;
+}
+
+async function nativeRequest(action, payload = {}, timeoutMs = 5000) {
+  if (!(await ensureNative())) throw new Error('Native Helper chưa kết nối.');
+  const requestId = crypto.randomUUID();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      pendingNativeOps.delete(requestId);
+      reject(new Error('Native Helper không phản hồi thao tác.'));
+    }, timeoutMs);
+    pendingNativeOps.set(requestId, {resolve, reject, timer});
+    try { nativePort.postMessage({action, requestId, ...payload}); }
+    catch (e) {
+      clearTimeout(timer);
+      pendingNativeOps.delete(requestId);
+      reject(e);
+    }
+  });
 }

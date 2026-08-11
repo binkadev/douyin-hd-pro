@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.4
+
+- Thêm màn hình thiết lập lần đầu bằng tiếng Việt, cho phép chọn cách công cụ hoạt động trước khi sử dụng.
+- Thêm cài đặt: tự bắt luồng khi mở popup, hành động sau khi tải xong và cách đặt tên file.
+- Mặc định sau khi tải xong sẽ **hỏi người dùng** muốn Mở video / Mở thư mục / Sao chép đường dẫn.
+- Sửa toàn bộ luồng nút Mở video / Mở thư mục để chờ phản hồi thực tế từ Native Helper thay vì trả thành công giả.
+- Thêm request ID + timeout cho Native Messaging action, hiển thị lỗi rõ ràng nếu helper không phản hồi.
+- Sửa Sao chép đường dẫn bằng Clipboard API + fallback `execCommand`, thêm quyền `clipboardWrite`.
+- Thêm toast thành công/thất bại để mọi thao tác đều có phản hồi.
+- Có thể tự mở video hoặc thư mục sau khi tải nếu người dùng chọn trong cài đặt.
+- Hỗ trợ 3 kiểu đặt tên file: `Tác giả - Tiêu đề`, `Chỉ tiêu đề`, `Ngày - Tiêu đề`.
+- Giữ đủ 10 ngôn ngữ; người dùng nâng cấp từ bản cũ sẽ thấy màn hình thiết lập đầu tiên bằng Tiếng Việt.
+
 ## 1.0.3
 
 - Thiết kế lại popup với UX tải xuống đầy đủ.

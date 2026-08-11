@@ -1,25 +1,59 @@
 {
   "manifest_version": 3,
   "name": "__MSG_appName__",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "__MSG_appDescription__",
   "homepage_url": "https://github.com/binkadev/douyin-hd-pro",
   "minimum_chrome_version": "120",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3GQbqjdi7QqMcTIuPlpqUT92R//XDH5VVZOHawhaJ8K7xNY0outIJ69Qgwni+RLSVyhsOCTPA6/oQ3HQrRjJrZtIa/9SR9dcGF+AskwlpdaWxpBpjW/aW50I6mQUwB3GHgfJJBMOAdWIia/83S6M4YjmtoQyPHYZd/BdbGTeCXVqZoqZtmGfbCDM8ZDxo0iPTWrE9k8EKEJYyCRzxNfv/Pwa1Yu/8bkaZ5rJoHnJa1ZdTNiYcrAWmCa1VHWqmDC31J7Lu5Klq1Gw2WMDfYYkivyPqZFh142rZpAQH9JtNLJ26IfDWr5tlBJ1vECB/Hd2aFaVxhvJg4NIsWVYaodfXQIDAQAB",
-  "permissions": ["debugger", "downloads", "nativeMessaging", "scripting", "storage", "activeTab", "tabs"],
-  "host_permissions": ["*://*.douyin.com/*", "*://douyin.com/*"],
-  "background": {"service_worker": "background.js"},
+  "permissions": [
+    "debugger",
+    "downloads",
+    "nativeMessaging",
+    "scripting",
+    "storage",
+    "activeTab",
+    "tabs",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "*://*.douyin.com/*",
+    "*://douyin.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_title": "Douyin HD Pro",
     "default_popup": "popup.html",
-    "default_icon": {"16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png"}
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
-  "icons": {"16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png"},
-  "content_scripts": [{
-    "matches": ["*://*.douyin.com/*", "*://douyin.com/*"],
-    "js": ["i18n.js", "content.js"],
-    "css": ["content.css"],
-    "run_at": "document_idle"
-  }],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.douyin.com/*",
+        "*://douyin.com/*"
+      ],
+      "js": [
+        "i18n.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
   "default_locale": "vi"
 }

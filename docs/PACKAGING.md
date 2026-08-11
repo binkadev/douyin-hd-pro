@@ -46,8 +46,8 @@ Binary được PyInstaller build trên `windows-latest`.
 
 ```powershell
 python -m pip install pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin native/host.py
-.\scripts\package_release.ps1 -Version 1.0.3
+python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin native/host_v104.py
+.\scripts\package_release.ps1 -Version 1.0.4
 ```
 
 ## GitHub Actions

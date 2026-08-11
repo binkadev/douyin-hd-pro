@@ -52,3 +52,14 @@ Nếu stream là MPEG-TS, cài FFmpeg vào PATH để helper remux sang `.mp4`. 
 ## Đổi ngôn ngữ
 
 Mở popup Extension và chọn ngôn ngữ ở góc trên bên phải. Lựa chọn được đồng bộ qua `chrome.storage.sync`. Mặc định là Tiếng Việt.
+
+
+## Nút Mở video / Mở thư mục không phản hồi
+
+Từ v1.0.4, các nút này dùng request ID và chờ phản hồi trực tiếp từ Native Helper. Nếu thao tác thất bại, popup sẽ hiển thị lỗi thay vì báo thành công giả.
+
+Kiểm tra:
+
+1. Chấm trạng thái Native Helper phải màu xanh.
+2. File phải nằm trong `%USERPROFILE%\Downloads\DouyinHD`.
+3. Nếu vừa nâng cấp, hãy chạy lại `CAI-DAT-WINDOWS.bat` để Native Helper cũng lên đúng v1.0.4.

@@ -1,6 +1,6 @@
 # Chrome Extension
 
-Phần trình duyệt của Douyin HD Pro v1.0.3 sử dụng Chrome Manifest V3.
+Phần trình duyệt của Douyin HD Pro v1.0.4 sử dụng Chrome Manifest V3.
 
 ## Cấu trúc
 
@@ -43,3 +43,11 @@ node --check popup.js
 ```
 
 Không đưa cookie, token, signed media URL hoặc request header nhạy cảm vào issue/log công khai.
+
+
+## Trải nghiệm v1.0.4
+
+- Lần đầu mở sẽ có trình thiết lập bằng tiếng Việt để hỏi ngôn ngữ, tự bắt luồng, hành động sau tải và cách đặt tên file.
+- Mặc định sau khi tải xong sẽ hỏi người dùng muốn **Mở video**, **Mở thư mục** hay chỉ sao chép đường dẫn.
+- `i18n-v104.js` mở rộng từ điển cho các màn hình/thiết lập mới mà vẫn giữ 10 ngôn ngữ hiện có.
+- Các nút mở file/thư mục đợi phản hồi thật từ Native Helper và hiển thị toast thành công/thất bại.

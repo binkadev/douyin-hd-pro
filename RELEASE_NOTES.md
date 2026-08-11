@@ -1,27 +1,25 @@
-## Douyin HD Pro v1.0.3
+## Douyin HD Pro v1.0.4
 
-Bản v1.0.3 tập trung vào trải nghiệm sử dụng hằng ngày và bản địa hóa.
+Bản v1.0.4 tập trung vào **UX thực tế và độ tin cậy của các nút thao tác**.
 
-### Nổi bật
+### Điểm mới
 
-- Popup mới hoàn toàn, mặc định **Tiếng Việt**.
-- Có **10 ngôn ngữ** và cho phép đổi trực tiếp trong popup.
-- Tiến trình tải theo thời gian thực: **% / dung lượng / tốc độ / ETA**.
-- Sau khi tải xong: **Mở video**, **Mở thư mục**, **Sao chép đường dẫn**.
-- Native Helper v1.0.3 giữ cơ chế tải Range song song và HLS, bổ sung telemetry tiến trình rõ hơn.
-- Theo dõi cả Native download và Chrome fallback.
-- Gói Windows Full có `CAI-DAT-WINDOWS.bat` để cài nhanh Native Helper.
+- Màn hình thiết lập lần đầu bằng **Tiếng Việt**.
+- Hỏi người dùng cách muốn công cụ hoạt động: tự bắt luồng, hành động sau tải và cách đặt tên file.
+- Mặc định sau khi tải xong sẽ hỏi: **Mở video / Mở thư mục / Sao chép đường dẫn**.
+- Nút **Mở video** và **Mở thư mục** giờ chờ phản hồi thật từ Native Helper, có timeout và báo lỗi rõ ràng.
+- **Sao chép đường dẫn** có Clipboard API + fallback để tăng độ tương thích.
+- Có toast phản hồi cho mọi thao tác, không còn trường hợp bấm nút mà không biết có chạy hay không.
+- Tùy chọn tự mở video hoặc thư mục sau khi tải xong.
+- 3 kiểu đặt tên file: `Tác giả - Tiêu đề`, `Chỉ tiêu đề`, `Ngày - Tiêu đề`.
+- Vẫn hỗ trợ 10 ngôn ngữ: Tiếng Việt, English, 简体中文, 繁體中文, 한국어, 日本語, ไทย, Bahasa Indonesia, Español, Français.
 
-### 10 ngôn ngữ
+### Gói khuyên dùng
 
-Tiếng Việt, English, 简体中文, 繁體中文, 한국어, 日本語, ไทย, Bahasa Indonesia, Español, Français.
-
-### Nên tải file nào?
-
-- **Windows-Full.zip**: bản khuyên dùng cho Windows 10/11.
-- **Extension-Only.zip**: chỉ Extension.
-- **Source.zip**: dành cho developer/audit.
+- **Douyin-HD-Pro-v1.0.4-Windows-Full.zip**: bản đầy đủ cho Windows 10/11.
+- **Extension-Only.zip**: chỉ Chrome Extension.
+- **Source.zip**: source sạch để audit/build.
 - **douyin_hd_native.exe**: Native Helper độc lập.
 - **SHA256SUMS.txt**: checksum SHA-256.
 
-> Binary chưa có Code Signing certificate thương mại nên Windows SmartScreen có thể cảnh báo reputation. Source và workflow build đều công khai để kiểm tra.
+> Native Helper chưa có Code Signing certificate thương mại nên Windows SmartScreen có thể cảnh báo reputation. Source và workflow build được công khai để kiểm tra.

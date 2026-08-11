@@ -13,7 +13,7 @@
       <div class="logo">D</div>
       <div><h1>Douyin HD Pro</h1><p id="subtitle">Tải video Douyin chất lượng cao</p></div>
     </div>
-    <select id="language" aria-label="Ngôn ngữ"></select>
+    <div class="top-actions"><button id="settingsBtn" class="icon-btn" title="Cài đặt" aria-label="Cài đặt">⚙</button><select id="language" aria-label="Ngôn ngữ"></select></div>
   </header>
 
   <section class="status-card">
@@ -21,10 +21,11 @@
       <span id="nativeDot" class="dot"></span>
       <div><strong id="status">Đang kiểm tra…</strong><small id="nativeText">Đang kiểm tra Native Helper</small></div>
     </div>
-    <span class="version">v1.0.3</span>
+    <span class="version">v1.0.4</span>
   </section>
 
   <section id="pageWarning" class="warning hidden"></section>
+  <section id="notice" class="notice hidden"></section>
 
   <section class="actions">
     <button id="capture" class="secondary">Bắt luồng</button>
@@ -40,6 +41,7 @@
       <div><span id="speedLabel">Tốc độ</span><strong id="speedValue">—</strong></div>
       <div><span id="etaLabel">Còn lại</span><strong id="etaValue">—</strong></div>
     </div>
+    <div id="afterQuestion" class="after-question hidden">Tải xong. Bạn muốn làm gì với video này?</div>
     <div id="resultActions" class="result-actions hidden">
       <button id="openFile">Mở video</button><button id="openFolder">Mở thư mục</button><button id="copyPath" class="ghost">Sao chép đường dẫn</button>
     </div>
@@ -51,9 +53,25 @@
     <div id="list" class="list"><div id="empty" class="empty">Chưa phát hiện luồng video.</div></div>
   </section>
 
-  <footer><span>Douyin HD Pro</span><span>•</span><span id="footerVersion">v1.0.3</span></footer>
+  <footer><span>Douyin HD Pro</span><span>•</span><span id="footerVersion">v1.0.4</span></footer>
 </main>
+
+<div id="setupModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-head"><div><span id="setupEyebrow">THIẾT LẬP</span><h2 id="setupTitle">Thiết lập theo cách bạn muốn</h2></div><button id="setupClose" class="icon-btn close-btn" aria-label="Đóng">×</button></div>
+    <p id="setupDesc" class="modal-desc">Chọn một lần, bạn có thể đổi lại bất cứ lúc nào bằng nút ⚙.</p>
+    <label class="field"><span id="setupLanguageLabel">Ngôn ngữ giao diện</span><select id="setupLanguage"></select></label>
+    <label class="switch-row"><div><strong id="autoCaptureLabel">Tự bắt luồng khi mở công cụ</strong><small id="autoCaptureHint">Chỉ kích hoạt khi bạn mở popup trên trang Douyin.</small></div><input id="autoCapture" type="checkbox" checked><span class="switch"></span></label>
+    <label class="field"><span id="afterDownloadLabel">Sau khi tải xong</span><select id="afterDownload"></select></label>
+    <label class="field"><span id="filenameLabel">Cách đặt tên file</span><select id="filenameMode"></select></label>
+    <div class="folder-note"><span id="saveFolderLabel">Thư mục lưu mặc định</span><strong>%USERPROFILE%\Downloads\DouyinHD</strong><small id="saveFolderHint">Giữ cố định trong thư mục tải xuống để thao tác Mở video/Mở thư mục an toàn và ổn định.</small></div>
+    <div class="modal-actions"><button id="setupCancel" class="secondary">Để sau</button><button id="setupSave" class="primary">Lưu cài đặt</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script src="i18n.js"></script>
+<script src="i18n-v104.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

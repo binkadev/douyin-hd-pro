@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.3-ff2d55">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.4-ff2d55">
   <img alt="Chrome MV3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4">
   <img alt="Languages" src="https://img.shields.io/badge/languages-10-25f4ee">
@@ -15,18 +15,16 @@
 
 > **Douyin HD Pro** hoạt động theo hướng local-first. Extension quan sát request media trong chính tab Douyin, còn Native Helper tải file trực tiếp về máy. Dự án không vận hành máy chủ trung gian để nhận hoặc lưu video của người dùng.
 
-## Có gì mới ở v1.0.3
+## Có gì mới ở v1.0.4
 
-- Giao diện popup mới hoàn toàn bằng tiếng Việt, dễ nhìn và rõ trạng thái hơn.
-- Thanh tiến trình tải theo thời gian thực: phần trăm, dung lượng, tốc độ và thời gian còn lại.
-- Sau khi tải xong có nút **Mở video**, **Mở thư mục** và **Sao chép đường dẫn**.
-- Hỗ trợ chọn thủ công 10 ngôn ngữ, lưu lựa chọn bằng `chrome.storage.sync`.
-- Manifest của Chrome cũng có metadata bản địa hóa theo ngôn ngữ trình duyệt.
-- Cải thiện quản lý trạng thái tải khi popup đóng/mở lại.
-- Theo dõi cả tải bằng Native Helper lẫn Chrome fallback.
-- Native Helper v1.0.3 bổ sung ETA, tốc độ dạng số và lệnh mở file/thư mục an toàn.
-- Gói Windows Full có `CAI-DAT-WINDOWS.bat` và hướng dẫn tiếng Việt.
-- Pipeline Release tự build EXE, đóng gói ZIP và tạo SHA-256 checksum.
+- Thiết lập lần đầu bằng **Tiếng Việt**: công cụ hỏi người dùng muốn tự bắt luồng hay thủ công, muốn làm gì sau khi tải và cách đặt tên file.
+- Mặc định sau khi tải xong sẽ hỏi rõ: **Mở video / Mở thư mục / Sao chép đường dẫn**.
+- Sửa luồng Native Messaging cho các nút hậu tải: request ID, timeout, phản hồi thành công/thất bại thực tế.
+- Thêm toast trạng thái để không còn thao tác im lặng.
+- Sao chép đường dẫn dùng Clipboard API và có fallback.
+- Có thể chọn tự mở video, tự mở thư mục hoặc không làm gì sau tải.
+- 3 cách đặt tên file: **Tác giả - Tiêu đề**, **Chỉ tiêu đề**, **Ngày - Tiêu đề**.
+- Giữ đủ 10 ngôn ngữ và lưu cấu hình bằng `chrome.storage.sync`.
 
 ## Ngôn ngữ hỗ trợ
 
@@ -55,7 +53,7 @@ Native Helper viết bằng Python và đóng gói thành EXE bằng PyInstaller
 
 HLS `.m3u8` được hỗ trợ theo hướng tải segment song song. Nếu stream MPEG-TS và máy có FFmpeg, helper có thể remux sang MP4 mà không encode lại.
 
-### UX tải xuống v1.0.3
+### UX tải xuống v1.0.4
 
 Popup hiển thị trực tiếp:
 
@@ -69,10 +67,12 @@ Popup hiển thị trực tiếp:
 - ETA.
 - Đường dẫn file sau khi hoàn tất.
 - Nút mở file và thư mục ngay từ popup.
+- Màn hình hỏi hành động sau tải và cài đặt có thể mở lại bằng nút ⚙.
+- Mọi nút đều hiển thị trạng thái thành công/thất bại.
 
 ## Cài nhanh trên Windows
 
-Tải file `Douyin-HD-Pro-v1.0.3-Windows-Full.zip` trong **Releases**, sau đó:
+Tải file `Douyin-HD-Pro-v1.0.4-Windows-Full.zip` trong **Releases**, sau đó:
 
 1. Giải nén toàn bộ ZIP.
 2. Chạy `CAI-DAT-WINDOWS.bat` — **không cần Run as administrator**.
@@ -92,9 +92,9 @@ Video mặc định được lưu vào:
 
 | File | Dành cho |
 |---|---|
-| `Douyin-HD-Pro-v1.0.3-Windows-Full.zip` | Người dùng Windows, có sẵn Native Helper EXE |
-| `Douyin-HD-Pro-v1.0.3-Extension-Only.zip` | Chỉ cần Chrome Extension / Chrome fallback |
-| `Douyin-HD-Pro-v1.0.3-Source.zip` | Developer hoặc người muốn audit/build từ source |
+| `Douyin-HD-Pro-v1.0.4-Windows-Full.zip` | Người dùng Windows, có sẵn Native Helper EXE |
+| `Douyin-HD-Pro-v1.0.4-Extension-Only.zip` | Chỉ cần Chrome Extension / Chrome fallback |
+| `Douyin-HD-Pro-v1.0.4-Source.zip` | Developer hoặc người muốn audit/build từ source |
 | `douyin_hd_native.exe` | Native Helper độc lập |
 | `SHA256SUMS.txt` | Kiểm tra tính toàn vẹn artifact |
 
@@ -126,7 +126,8 @@ Douyin HD Pro yêu cầu một số quyền mạnh vì chức năng của nó ph
 - `nativeMessaging`: giao tiếp với Native Helper chạy cục bộ.
 - `downloads`: dùng cho chế độ Chrome fallback và mở vị trí file fallback.
 - `scripting`, `activeTab`, `tabs`: đọc metadata trang và quản lý đúng tab Douyin.
-- `storage`: lưu lựa chọn ngôn ngữ.
+- `storage`: lưu lựa chọn ngôn ngữ và thiết lập người dùng.
+- `clipboardWrite`: sao chép đường dẫn file sau khi tải.
 
 Tool không được thiết kế để vượt DRM, cơ chế mã hóa hoặc quyền truy cập riêng tư.
 
@@ -155,12 +156,13 @@ native\install_windows.bat
 Kiểm tra source trước khi commit:
 
 ```bash
-python -m py_compile native/host.py
+python -m py_compile native/host.py native/host_v104.py
 node --check extension/background.js
 node --check extension/background/core.js
 node --check extension/background/capture.js
 node --check extension/background/download.js
 node --check extension/i18n.js
+node --check extension/i18n-v104.js
 node --check extension/content.js
 node --check extension/popup.js
 ```
