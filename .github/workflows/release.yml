@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Phiên bản phát hành, ví dụ 1.0.4'
+        description: 'Phiên bản phát hành, ví dụ 1.1.0'
         required: true
-        default: '1.0.4'
+        default: '1.1.0'
   push:
     tags: ['v*']
     branches: [master]
@@ -30,20 +30,21 @@ jobs:
       - name: Validate source
         shell: pwsh
         run: |
-          python -m py_compile native/host_v104.py
+          python -m py_compile native/host.py native/host_core.py
           node --check extension/background.js
           node --check extension/background/core.js
           node --check extension/background/capture.js
           node --check extension/background/download.js
           node --check extension/i18n.js
           node --check extension/i18n-v104.js
+          node --check extension/i18n-v110.js
           node --check extension/content.js
           node --check extension/popup.js
           $manifest = Get-Content extension/manifest.json -Raw | ConvertFrom-Json
           if ($manifest.version -ne (Get-Content VERSION.txt -Raw).Trim()) { throw 'VERSION.txt và manifest.json không khớp.' }
       - name: Build Native Helper
         shell: pwsh
-        run: python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin --workpath build/native --specpath build native/host_v104.py
+        run: python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin --workpath build/native --specpath build native/host.py
       - name: Determine version and tag
         id: version
         shell: pwsh

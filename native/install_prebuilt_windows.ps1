@@ -11,7 +11,7 @@ Set-Location -LiteralPath $NativeDir
 
 Write-Host ''
 Write-Host '=====================================================' -ForegroundColor DarkGray
-Write-Host '  Douyin HD Pro v1.0.4 - Trình cài đặt Windows' -ForegroundColor Cyan
+Write-Host '  Douyin HD Pro v1.1.0 - Trình cài đặt Windows' -ForegroundColor Cyan
 Write-Host '=====================================================' -ForegroundColor DarkGray
 Write-Host ''
 
@@ -43,7 +43,7 @@ Write-Host '  3. Chọn đúng thư mục:' -NoNewline
 Write-Host " $ExtensionDir" -ForegroundColor Green
 Write-Host ''
 Write-Host "Extension ID cố định: $ExtensionId" -ForegroundColor DarkGray
-Write-Host "Video tải về: $env:USERPROFILE\Downloads\DouyinHD" -ForegroundColor DarkGray
+Write-Host "Thư mục mặc định: $env:USERPROFILE\Downloads\DouyinHD (có thể đổi trong popup)" -ForegroundColor DarkGray
 Write-Host ''
 try { Start-Process 'chrome.exe' 'chrome://extensions/' } catch { Write-Host 'Không thể tự mở Chrome. Hãy mở chrome://extensions thủ công.' -ForegroundColor Yellow }
 Read-Host 'Nhấn Enter để đóng trình cài đặt'

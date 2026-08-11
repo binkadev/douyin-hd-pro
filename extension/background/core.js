@@ -75,8 +75,24 @@ function cleanRequestHeaders(headers = {}) {
 }
 
 function getSession(tabId) {
-  if (!sessions.has(tabId)) sessions.set(tabId, {attached:false, requests:new Map(), candidates:new Map(), startedAt:0});
+  if (!sessions.has(tabId)) sessions.set(tabId, {attached:false, requests:new Map(), candidates:new Map(), startedAt:0, epoch:0, resetAt:0, videoKey:'', pageUrl:'', mediaSig:'', awaitingNewVideo:false, completedVideoKey:'', videoEvent:''});
   return sessions.get(tabId);
+}
+
+function clearSessionData(tabId, {clearDownload=true} = {}) {
+  const s = getSession(tabId);
+  s.epoch = (s.epoch || 0) + 1;
+  s.requests.clear();
+  s.candidates.clear();
+  s.resetAt = Date.now();
+  s.startedAt = Date.now();
+  s.videoEvent = '';
+  if (clearDownload) latestDownloadByTab.delete(tabId);
+  return s;
+}
+
+function normalizePageUrl(url='') {
+  try { const u=new URL(url); u.hash=''; return `${u.origin}${u.pathname}${u.search}`; } catch { return String(url||'').split('#')[0]; }
 }
 
 function publicCandidate(c) {
@@ -115,7 +131,7 @@ async function broadcastState(tabId) {
   const candidates = [...s.candidates.values()].sort((a,b) => b.score - a.score).slice(0, 20).map(publicCandidate);
   const lastId = latestDownloadByTab.get(tabId);
   const download = lastId ? downloadStates.get(lastId) || null : null;
-  const payload = {type:'STATE', attached:s.attached, candidates, nativeReady, download};
+  const payload = {type:'STATE', attached:s.attached, candidates, nativeReady, download, awaitingNewVideo:!!s.awaitingNewVideo, videoKey:s.videoKey||'', videoEvent:s.videoEvent||''};
   void safeRuntimeMessage({...payload, tabId});
   void safeTabMessage(tabId, payload);
 }
@@ -130,6 +146,7 @@ function addCandidate(tabId, c) {
   merged.timestamp = Date.now();
   merged.score = candidateScore(merged);
   if (!old || merged.score >= old.score || merged.totalSize > old.totalSize) s.candidates.set(key, merged);
+  if (s.videoEvent === 'new_auto' && s.candidates.size) s.videoEvent = '';
   if (s.candidates.size > 80) {
     const arr = [...s.candidates.entries()].sort((a,b) => b[1].score - a[1].score).slice(0, 50);
     s.candidates = new Map(arr);
@@ -186,16 +203,18 @@ async function inspectJsonResponse(tabId, requestId, meta) {
   } catch {}
 }
 
-async function scanPage(tabId) {
+async function scanPage(tabId, fresh = false) {
   try {
     const result = await chrome.debugger.sendCommand({tabId}, 'Runtime.evaluate', {
       expression: `(() => {
+        const fresh=${fresh ? 'true' : 'false'};
         const out=[];
+        if(fresh){try{performance.clearResourceTimings()}catch(e){}}
         document.querySelectorAll('video').forEach(v=>{
           const urls=[v.currentSrc,v.src,...Array.from(v.querySelectorAll('source')).map(s=>s.src)].filter(Boolean);
           urls.forEach(url=>out.push({url,source:'dom',width:v.videoWidth||0,height:v.videoHeight||0}));
         });
-        performance.getEntriesByType('resource').slice(-500).forEach(e=>{
+        if(!fresh) performance.getEntriesByType('resource').slice(-500).forEach(e=>{
           if (/mp4|m3u8|douyinvod|video\\/tos|play_addr|video_id/i.test(e.name)) out.push({url:e.name,source:'performance',size:e.transferSize||e.encodedBodySize||0});
         });
         const seen=new Set(out.map(x=>x.url));
@@ -221,7 +240,7 @@ async function scanPage(tabId) {
             if(out.length>120)break;
           }
         };
-        for(const sc of Array.from(document.scripts).slice(0,80)){
+        if(!fresh) for(const sc of Array.from(document.scripts).slice(0,80)){
           const t=sc.textContent||'';
           if(t.length<50||t.length>8000000||!/(url_list|play_addr|bit_rate)/.test(t))continue;
           const q=t.trim();

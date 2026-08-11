@@ -1,6 +1,6 @@
 # Chrome Extension
 
-Phần trình duyệt của Douyin HD Pro v1.0.4 sử dụng Chrome Manifest V3.
+Phần trình duyệt của Douyin HD Pro v1.1.0 sử dụng Chrome Manifest V3.
 
 ## Cấu trúc
 
@@ -9,7 +9,9 @@ Phần trình duyệt của Douyin HD Pro v1.0.4 sử dụng Chrome Manifest V3.
 - `background/core.js`: phát hiện/chấm điểm media candidate và quét JSON/DOM/Performance.
 - `background/capture.js`: Chrome Debugger/CDP, Network events và Native Messaging.
 - `background/download.js`: tải BEST/từng candidate, Chrome fallback và trạng thái tiến trình.
-- `i18n.js`: từ điển runtime 10 ngôn ngữ; mặc định Tiếng Việt.
+- `i18n.js`: từ điển runtime nền 10 ngôn ngữ; mặc định Tiếng Việt.
+- `i18n-v104.js`: lớp tương thích UI từ v1.0.4.
+- `i18n-v110.js`: onboarding, thư mục tùy chỉnh và phiên video của v1.1.0.
 - `_locales/`: metadata bản địa hóa cho Chrome Extension.
 - `content.js`: nút **↓ Tải HD** trên Douyin.
 - `popup.*`: giao diện chọn luồng, đổi ngôn ngữ, progress, tốc độ, ETA, mở file/thư mục.
@@ -38,16 +40,20 @@ node --check background/core.js
 node --check background/capture.js
 node --check background/download.js
 node --check i18n.js
+node --check i18n-v104.js
+node --check i18n-v110.js
 node --check content.js
 node --check popup.js
 ```
 
 Không đưa cookie, token, signed media URL hoặc request header nhạy cảm vào issue/log công khai.
 
+## Trải nghiệm v1.1.0
 
-## Trải nghiệm v1.0.4
-
-- Lần đầu mở sẽ có trình thiết lập bằng tiếng Việt để hỏi ngôn ngữ, tự bắt luồng, hành động sau tải và cách đặt tên file.
-- Mặc định sau khi tải xong sẽ hỏi người dùng muốn **Mở video**, **Mở thư mục** hay chỉ sao chép đường dẫn.
-- `i18n-v104.js` mở rộng từ điển cho các màn hình/thiết lập mới mà vẫn giữ 10 ngôn ngữ hiện có.
-- Các nút mở file/thư mục đợi phản hồi thật từ Native Helper và hiển thị toast thành công/thất bại.
+- Onboarding là **một view riêng**, không dùng modal fixed trong popup.
+- Người dùng chọn được **thư mục lưu**, chế độ đổi video, tự bắt luồng, hành động sau tải và cách đặt tên.
+- Giao diện chính luôn hiển thị **Lưu vào** + nút **Thay đổi**.
+- **Mỗi video là một phiên riêng**: khi video thay đổi, candidate cũ và trạng thái tải của phiên cũ được loại khỏi UI.
+- Chế độ tự động reset rồi capture video mới; chế độ thủ công reset rồi chờ người dùng bấm **Bắt luồng**.
+- Nút **Đặt lại** cho phép xóa phiên hiện tại và bắt lại từ đầu.
+- Các nút mở file/thư mục/chọn thư mục chờ phản hồi thật từ Native Helper và hiển thị toast thành công/thất bại.

@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.4-ff2d55">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0-ff2d55">
   <img alt="Chrome MV3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4">
   <img alt="Languages" src="https://img.shields.io/badge/languages-10-25f4ee">
@@ -15,16 +15,19 @@
 
 > **Douyin HD Pro** hoạt động theo hướng local-first. Extension quan sát request media trong chính tab Douyin, còn Native Helper tải file trực tiếp về máy. Dự án không vận hành máy chủ trung gian để nhận hoặc lưu video của người dùng.
 
-## Có gì mới ở v1.0.4
+## Có gì mới ở v1.1.0
 
-- Thiết lập lần đầu bằng **Tiếng Việt**: công cụ hỏi người dùng muốn tự bắt luồng hay thủ công, muốn làm gì sau khi tải và cách đặt tên file.
-- Mặc định sau khi tải xong sẽ hỏi rõ: **Mở video / Mở thư mục / Sao chép đường dẫn**.
-- Sửa luồng Native Messaging cho các nút hậu tải: request ID, timeout, phản hồi thành công/thất bại thực tế.
-- Thêm toast trạng thái để không còn thao tác im lặng.
-- Sao chép đường dẫn dùng Clipboard API và có fallback.
-- Có thể chọn tự mở video, tự mở thư mục hoặc không làm gì sau tải.
-- 3 cách đặt tên file: **Tác giả - Tiêu đề**, **Chỉ tiêu đề**, **Ngày - Tiêu đề**.
-- Giữ đủ 10 ngôn ngữ và lưu cấu hình bằng `chrome.storage.sync`.
+- **Onboarding mới hoàn toàn**: là một màn hình riêng trong popup, không còn overlay/modal dễ bị cắt ở lần mở đầu tiên.
+- Font giao diện ưu tiên **Segoe UI Variable / Segoe UI / system-ui / Noto Sans**, hiển thị dấu tiếng Việt rõ và đồng nhất trên Windows.
+- **Chọn thư mục lưu tùy ý** ngay khi thiết lập; ở giao diện chính luôn hiển thị đường dẫn hiện tại và nút **Thay đổi**.
+- **Mỗi video = một phiên stream riêng**. Khi chuyển video, tool không giữ danh sách luồng cũ.
+- Chế độ **Tự động — Khuyên dùng**: phát hiện video mới → reset luồng cũ → tự bắt luồng mới.
+- Chế độ **Thủ công**: phát hiện video mới → reset luồng cũ → dừng capture → yêu cầu bấm **Bắt luồng**.
+- Sau khi tải xong, phiên hiện tại chuyển sang trạng thái **Đã xong video hiện tại** và hướng dẫn rõ hành vi khi đổi video.
+- Có nút **Đặt lại** để xóa phiên hiện tại và bắt lại từ đầu.
+- Sửa giao thức Native Helper: **Mở video / Mở thư mục / Chọn thư mục** đều chờ phản hồi thật bằng `requestId`.
+- Native Helper ghi nhớ thư mục đã chọn trên máy và whitelist các thư mục đã dùng để mở file an toàn.
+- Giữ đủ 10 ngôn ngữ và các thiết lập hành vi bằng Chrome Storage.
 
 ## Ngôn ngữ hỗ trợ
 
@@ -53,7 +56,7 @@ Native Helper viết bằng Python và đóng gói thành EXE bằng PyInstaller
 
 HLS `.m3u8` được hỗ trợ theo hướng tải segment song song. Nếu stream MPEG-TS và máy có FFmpeg, helper có thể remux sang MP4 mà không encode lại.
 
-### UX tải xuống v1.0.4
+### UX tải xuống v1.1.0
 
 Popup hiển thị trực tiếp:
 
@@ -72,7 +75,7 @@ Popup hiển thị trực tiếp:
 
 ## Cài nhanh trên Windows
 
-Tải file `Douyin-HD-Pro-v1.0.4-Windows-Full.zip` trong **Releases**, sau đó:
+Tải file `Douyin-HD-Pro-v1.1.0-Windows-Full.zip` trong **Releases**, sau đó:
 
 1. Giải nén toàn bộ ZIP.
 2. Chạy `CAI-DAT-WINDOWS.bat` — **không cần Run as administrator**.
@@ -88,13 +91,15 @@ Video mặc định được lưu vào:
 %USERPROFILE%\Downloads\DouyinHD
 ```
 
+Bạn có thể đổi sang thư mục khác ngay trong màn hình thiết lập hoặc bấm **Thay đổi** cạnh mục **Lưu vào** ở giao diện chính. Thư mục tùy chỉnh cần Native Helper; chế độ Chrome fallback vẫn bị giới hạn bởi cơ chế Downloads của Chrome.
+
 ## Các gói phát hành
 
 | File | Dành cho |
 |---|---|
-| `Douyin-HD-Pro-v1.0.4-Windows-Full.zip` | Người dùng Windows, có sẵn Native Helper EXE |
-| `Douyin-HD-Pro-v1.0.4-Extension-Only.zip` | Chỉ cần Chrome Extension / Chrome fallback |
-| `Douyin-HD-Pro-v1.0.4-Source.zip` | Developer hoặc người muốn audit/build từ source |
+| `Douyin-HD-Pro-v1.1.0-Windows-Full.zip` | Người dùng Windows, có sẵn Native Helper EXE |
+| `Douyin-HD-Pro-v1.1.0-Extension-Only.zip` | Chỉ cần Chrome Extension / Chrome fallback |
+| `Douyin-HD-Pro-v1.1.0-Source.zip` | Developer hoặc người muốn audit/build từ source |
 | `douyin_hd_native.exe` | Native Helper độc lập |
 | `SHA256SUMS.txt` | Kiểm tra tính toàn vẹn artifact |
 
@@ -126,7 +131,7 @@ Douyin HD Pro yêu cầu một số quyền mạnh vì chức năng của nó ph
 - `nativeMessaging`: giao tiếp với Native Helper chạy cục bộ.
 - `downloads`: dùng cho chế độ Chrome fallback và mở vị trí file fallback.
 - `scripting`, `activeTab`, `tabs`: đọc metadata trang và quản lý đúng tab Douyin.
-- `storage`: lưu lựa chọn ngôn ngữ và thiết lập người dùng.
+- `storage`: lưu lựa chọn ngôn ngữ, chế độ phiên video và thiết lập người dùng.
 - `clipboardWrite`: sao chép đường dẫn file sau khi tải.
 
 Tool không được thiết kế để vượt DRM, cơ chế mã hóa hoặc quyền truy cập riêng tư.
@@ -156,13 +161,14 @@ native\install_windows.bat
 Kiểm tra source trước khi commit:
 
 ```bash
-python -m py_compile native/host.py native/host_v104.py
+python -m py_compile native/host.py native/host_core.py
 node --check extension/background.js
 node --check extension/background/core.js
 node --check extension/background/capture.js
 node --check extension/background/download.js
 node --check extension/i18n.js
 node --check extension/i18n-v104.js
+node --check extension/i18n-v110.js
 node --check extension/content.js
 node --check extension/popup.js
 ```

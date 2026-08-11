@@ -16,7 +16,7 @@ function Find-Python {
 }
 
 Write-Host ''
-Write-Host '=== Douyin HD Pro v1.0.4 - Tự build Native Helper từ source ===' -ForegroundColor Cyan
+Write-Host '=== Douyin HD Pro v1.1.0 - Tự build Native Helper từ source ===' -ForegroundColor Cyan
 $Py = Find-Python
 if (-not $Py -and (Get-Command winget -ErrorAction SilentlyContinue)) {
     Write-Host 'Chưa có Python. Đang cài Python 3.12 bằng winget...' -ForegroundColor Yellow
@@ -37,7 +37,7 @@ Write-Host 'Đang build Native Helper...' -ForegroundColor Yellow
 $Dist = Join-Path $BuildDir 'dist'; $Work = Join-Path $BuildDir 'work'
 Push-Location -LiteralPath $BuildDir
 try {
-    & $VenvPython -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath $Dist --workpath $Work --specpath $BuildDir (Join-Path $NativeDir 'host_v104.py')
+    & $VenvPython -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath $Dist --workpath $Work --specpath $BuildDir (Join-Path $NativeDir 'host.py')
     if ($LASTEXITCODE -ne 0) { throw "PyInstaller thất bại với mã $LASTEXITCODE." }
 } finally { Pop-Location }
 $Exe = Join-Path $Dist 'douyin_hd_native.exe'

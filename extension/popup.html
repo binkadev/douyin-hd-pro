@@ -7,71 +7,73 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-<main>
+<section id="setupView" class="view setup-view hidden">
+  <header class="setup-header">
+    <button id="setupBack" class="icon-btn hidden" aria-label="Quay lại">←</button>
+    <div class="setup-heading"><span id="setupEyebrow">THIẾT LẬP BAN ĐẦU</span><h1 id="setupTitle">Thiết lập Douyin HD Pro</h1><p id="setupDesc">Chọn cách công cụ vận hành. Bạn có thể thay đổi lại bất cứ lúc nào.</p></div>
+  </header>
+
+  <div class="setup-scroll">
+    <section class="setting-group">
+      <div class="group-title"><span>01</span><div><strong id="setupLanguageLabel">Ngôn ngữ giao diện</strong><small id="setupLanguageHint">Tiếng Việt là ngôn ngữ mặc định.</small></div></div>
+      <select id="setupLanguage" class="full-select"></select>
+    </section>
+
+    <section class="setting-group">
+      <div class="group-title"><span>02</span><div><strong id="saveFolderLabel">Thư mục lưu video</strong><small id="saveFolderHint">Chọn nơi bạn muốn lưu video tải về.</small></div></div>
+      <div class="folder-box"><div class="folder-path"><span id="saveFolderPathLabel">Đang kiểm tra…</span><strong id="saveFolderPath">%USERPROFILE%\\Downloads\\DouyinHD</strong></div><button id="chooseFolder" class="secondary compact">Chọn thư mục</button></div>
+      <p id="saveFolderNativeHint" class="micro-note">Tùy chỉnh thư mục cần Native Helper đang kết nối.</p>
+    </section>
+
+    <section class="setting-group">
+      <div class="group-title"><span>03</span><div><strong id="videoChangeLabel">Khi chuyển sang video khác</strong><small id="videoChangeHint">Quyết định cách tool loại bỏ luồng cũ và bắt video mới.</small></div></div>
+      <label class="choice-card"><input type="radio" name="videoChangeMode" value="auto" checked><span class="radio-ui"></span><div><strong id="videoModeAutoTitle">Tự động — Khuyên dùng</strong><small id="videoModeAutoDesc">Xóa toàn bộ luồng của video cũ và tự bắt luồng video mới.</small></div></label>
+      <label class="choice-card"><input type="radio" name="videoChangeMode" value="manual"><span class="radio-ui"></span><div><strong id="videoModeManualTitle">Thủ công</strong><small id="videoModeManualDesc">Xóa luồng cũ, dừng bắt và yêu cầu bạn nhấn “Bắt luồng” cho video mới.</small></div></label>
+    </section>
+
+    <section class="setting-group">
+      <div class="group-title"><span>04</span><div><strong id="behaviorLabel">Hành vi tải xuống</strong><small id="behaviorHint">Các lựa chọn này chỉ ảnh hưởng thao tác, không ảnh hưởng chất lượng video.</small></div></div>
+      <label class="switch-row"><div><strong id="autoCaptureLabel">Tự bắt luồng khi mở công cụ</strong><small id="autoCaptureHint">Khi mở popup trên Douyin, tool bắt đầu phân tích ngay.</small></div><input id="autoCapture" type="checkbox" checked><span class="switch"></span></label>
+      <label class="field"><span id="afterDownloadLabel">Sau khi tải xong</span><select id="afterDownload"></select></label>
+      <label class="field"><span id="filenameLabel">Cách đặt tên file</span><select id="filenameMode"></select></label>
+    </section>
+  </div>
+
+  <div class="setup-actions"><button id="setupCancel" class="secondary">Để sau</button><button id="setupSave" class="primary">Lưu và bắt đầu</button></div>
+</section>
+
+<main id="appView" class="view app-view hidden">
   <header class="topbar">
-    <div class="brand-wrap">
-      <div class="logo">D</div>
-      <div><h1>Douyin HD Pro</h1><p id="subtitle">Tải video Douyin chất lượng cao</p></div>
-    </div>
+    <div class="brand-wrap"><div class="logo">D</div><div><h1>Douyin HD Pro</h1><p id="subtitle">Tải video Douyin chất lượng cao</p></div></div>
     <div class="top-actions"><button id="settingsBtn" class="icon-btn" title="Cài đặt" aria-label="Cài đặt">⚙</button><select id="language" aria-label="Ngôn ngữ"></select></div>
   </header>
 
-  <section class="status-card">
-    <div class="status-main">
-      <span id="nativeDot" class="dot"></span>
-      <div><strong id="status">Đang kiểm tra…</strong><small id="nativeText">Đang kiểm tra Native Helper</small></div>
-    </div>
-    <span class="version">v1.0.4</span>
-  </section>
-
+  <section class="status-card"><div class="status-main"><span id="nativeDot" class="dot"></span><div><strong id="status">Đang kiểm tra…</strong><small id="nativeText">Đang kiểm tra Native Helper</small></div></div><span class="version">v1.1.0</span></section>
   <section id="pageWarning" class="warning hidden"></section>
-  <section id="notice" class="notice hidden"></section>
 
-  <section class="actions">
-    <button id="capture" class="secondary">Bắt luồng</button>
-    <button id="best" class="primary" disabled>Tải bản tốt nhất</button>
-  </section>
+  <section class="video-session-card"><div class="session-copy"><span id="sessionEyebrow">PHIÊN VIDEO</span><strong id="sessionTitle">Sẵn sàng cho video hiện tại</strong><small id="sessionHint">Mỗi video dùng một phiên luồng riêng để tránh tải nhầm.</small></div><button id="resetVideo" class="ghost-btn">Đặt lại</button></section>
+
+  <section class="save-bar"><div><span id="mainSaveLabel">Lưu vào</span><strong id="mainSavePath">%USERPROFILE%\\Downloads\\DouyinHD</strong></div><button id="mainChooseFolder" class="text-btn">Thay đổi</button></section>
+
+  <section class="actions"><button id="capture" class="secondary">Bắt luồng</button><button id="best" class="primary" disabled>Tải bản tốt nhất</button></section>
   <p id="tip" class="tip">Cho video chạy 2–3 giây để công cụ nhận đủ các luồng CDN và chọn bản tốt nhất.</p>
 
   <section id="progressCard" class="progress-card hidden">
     <div class="progress-head"><div><span id="progressLabel">Tiến trình tải</span><strong id="progressTitle">Đang chuẩn bị tải…</strong></div><span id="progressPercent">0%</span></div>
     <div class="progress-track"><div id="progressBar"></div></div>
-    <div class="progress-grid">
-      <div><span id="downloadedLabel">Đã tải</span><strong id="downloadedValue">0 B</strong></div>
-      <div><span id="speedLabel">Tốc độ</span><strong id="speedValue">—</strong></div>
-      <div><span id="etaLabel">Còn lại</span><strong id="etaValue">—</strong></div>
-    </div>
+    <div class="progress-grid"><div><span id="downloadedLabel">Đã tải</span><strong id="downloadedValue">0 B</strong></div><div><span id="speedLabel">Tốc độ</span><strong id="speedValue">—</strong></div><div><span id="etaLabel">Còn lại</span><strong id="etaValue">—</strong></div></div>
     <div id="afterQuestion" class="after-question hidden">Tải xong. Bạn muốn làm gì với video này?</div>
-    <div id="resultActions" class="result-actions hidden">
-      <button id="openFile">Mở video</button><button id="openFolder">Mở thư mục</button><button id="copyPath" class="ghost">Sao chép đường dẫn</button>
-    </div>
+    <div id="resultActions" class="result-actions hidden"><button id="openFile">Mở video</button><button id="openFolder">Mở thư mục</button><button id="copyPath" class="ghost">Sao chép đường dẫn</button></div>
     <div id="filePath" class="file-path hidden"></div>
   </section>
 
-  <section class="streams-section">
-    <div class="section-title"><span id="streamsLabel">Luồng phát hiện</span><span id="count" class="count">0</span></div>
-    <div id="list" class="list"><div id="empty" class="empty">Chưa phát hiện luồng video.</div></div>
-  </section>
-
-  <footer><span>Douyin HD Pro</span><span>•</span><span id="footerVersion">v1.0.4</span></footer>
+  <section class="streams-section"><div class="section-title"><span id="streamsLabel">Luồng phát hiện</span><span id="count" class="count">0</span></div><div id="list" class="list"><div id="empty" class="empty">Chưa phát hiện luồng video.</div></div></section>
+  <footer><span>Douyin HD Pro</span><span>•</span><span id="footerVersion">v1.1.0</span></footer>
 </main>
-
-<div id="setupModal" class="modal hidden" role="dialog" aria-modal="true">
-  <div class="modal-card">
-    <div class="modal-head"><div><span id="setupEyebrow">THIẾT LẬP</span><h2 id="setupTitle">Thiết lập theo cách bạn muốn</h2></div><button id="setupClose" class="icon-btn close-btn" aria-label="Đóng">×</button></div>
-    <p id="setupDesc" class="modal-desc">Chọn một lần, bạn có thể đổi lại bất cứ lúc nào bằng nút ⚙.</p>
-    <label class="field"><span id="setupLanguageLabel">Ngôn ngữ giao diện</span><select id="setupLanguage"></select></label>
-    <label class="switch-row"><div><strong id="autoCaptureLabel">Tự bắt luồng khi mở công cụ</strong><small id="autoCaptureHint">Chỉ kích hoạt khi bạn mở popup trên trang Douyin.</small></div><input id="autoCapture" type="checkbox" checked><span class="switch"></span></label>
-    <label class="field"><span id="afterDownloadLabel">Sau khi tải xong</span><select id="afterDownload"></select></label>
-    <label class="field"><span id="filenameLabel">Cách đặt tên file</span><select id="filenameMode"></select></label>
-    <div class="folder-note"><span id="saveFolderLabel">Thư mục lưu mặc định</span><strong>%USERPROFILE%\Downloads\DouyinHD</strong><small id="saveFolderHint">Giữ cố định trong thư mục tải xuống để thao tác Mở video/Mở thư mục an toàn và ổn định.</small></div>
-    <div class="modal-actions"><button id="setupCancel" class="secondary">Để sau</button><button id="setupSave" class="primary">Lưu cài đặt</button></div>
-  </div>
-</div>
-
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script src="i18n.js"></script>
 <script src="i18n-v104.js"></script>
+<script src="i18n-v110.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

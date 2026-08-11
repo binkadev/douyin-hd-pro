@@ -1,17 +1,18 @@
 # Changelog
 
-## 1.0.4
+## 1.1.0
 
-- Thêm màn hình thiết lập lần đầu bằng tiếng Việt, cho phép chọn cách công cụ hoạt động trước khi sử dụng.
-- Thêm cài đặt: tự bắt luồng khi mở popup, hành động sau khi tải xong và cách đặt tên file.
-- Mặc định sau khi tải xong sẽ **hỏi người dùng** muốn Mở video / Mở thư mục / Sao chép đường dẫn.
-- Sửa toàn bộ luồng nút Mở video / Mở thư mục để chờ phản hồi thực tế từ Native Helper thay vì trả thành công giả.
-- Thêm request ID + timeout cho Native Messaging action, hiển thị lỗi rõ ràng nếu helper không phản hồi.
-- Sửa Sao chép đường dẫn bằng Clipboard API + fallback `execCommand`, thêm quyền `clipboardWrite`.
-- Thêm toast thành công/thất bại để mọi thao tác đều có phản hồi.
-- Có thể tự mở video hoặc thư mục sau khi tải nếu người dùng chọn trong cài đặt.
-- Hỗ trợ 3 kiểu đặt tên file: `Tác giả - Tiêu đề`, `Chỉ tiêu đề`, `Ngày - Tiêu đề`.
-- Giữ đủ 10 ngôn ngữ; người dùng nâng cấp từ bản cũ sẽ thấy màn hình thiết lập đầu tiên bằng Tiếng Việt.
+- Làm lại onboarding thành **màn hình riêng** trong popup, loại bỏ lỗi crop/overflow của modal lần đầu.
+- Chuẩn hóa font hiển thị tiếng Việt bằng `Segoe UI Variable Text`, `Segoe UI`, `system-ui`, `Noto Sans`; tăng cỡ chữ và độ tương phản.
+- Thêm **thư mục lưu tùy chỉnh** qua Native Helper; đường dẫn hiện tại + nút **Thay đổi** luôn hiển thị ở giao diện chính.
+- Mỗi video có **phiên stream riêng**; danh sách stream cũ không được dùng lại khi chuyển video.
+- Thêm chế độ đổi video `auto`: reset luồng cũ và tự bắt luồng mới.
+- Thêm chế độ đổi video `manual`: reset luồng cũ, dừng capture và yêu cầu bấm **Bắt luồng** cho video mới.
+- Sau khi tải xong, phiên hiện tại chuyển trạng thái **Đã xong**; có nút **Đặt lại** để bắt lại từ đầu.
+- Theo dõi video mới trên Douyin SPA bằng URL + media signature, có session epoch để bỏ response cũ sau reset.
+- Native Helper v1.1.0 thêm `get_settings`, `choose_folder`, `set_save_folder` và phản hồi thao tác bằng `requestId`.
+- Sửa **Mở video / Mở thư mục**: UI chỉ báo thành công khi Native Helper xác nhận thao tác thật.
+- Duy trì 10 ngôn ngữ runtime, Tiếng Việt mặc định; các màn mới có fallback tiếng Anh và bản địa hóa các nhãn chính.
 
 ## 1.0.3
 

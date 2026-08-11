@@ -15,13 +15,14 @@ jobs:
           python-version: '3.12'
       - name: Kiểm tra Python và JavaScript
         run: |
-          python -m py_compile native/host.py native/host_v104.py
+          python -m py_compile native/host.py native/host_core.py
           node --check extension/background.js
           node --check extension/background/core.js
           node --check extension/background/capture.js
           node --check extension/background/download.js
           node --check extension/i18n.js
           node --check extension/i18n-v104.js
+          node --check extension/i18n-v110.js
           node --check extension/content.js
           node --check extension/popup.js
       - name: Kiểm tra manifest và 10 ngôn ngữ
