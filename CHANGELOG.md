@@ -1,32 +1,23 @@
 # Changelog
 
-Tất cả thay đổi đáng chú ý của Douyin HD Pro được ghi tại đây.
+## 1.0.3
 
-## [1.0.2] - 2026-08-09
+- Thiết kế lại popup với UX tải xuống đầy đủ.
+- Hiển thị phần trăm, dung lượng, tốc độ và ETA theo thời gian thực.
+- Thêm Mở video / Mở thư mục / Sao chép đường dẫn sau khi tải xong.
+- Thêm hệ thống i18n thủ công với 10 ngôn ngữ, mặc định Tiếng Việt.
+- Thêm `_locales` để Chrome bản địa hóa tên và mô tả Extension.
+- Đồng bộ lựa chọn ngôn ngữ bằng `chrome.storage.sync`.
+- Giữ trạng thái download trong background để popup mở lại vẫn thấy tiến trình gần nhất.
+- Theo dõi download ở Chrome fallback.
+- Native Helper thêm `speedBps`, `etaSeconds`, `open_file`, `open_folder`.
+- Giới hạn lệnh mở file chỉ trong `Downloads\DouyinHD`.
+- Thêm gói cài nhanh Windows và tài liệu tiếng Việt.
+- Tối ưu Source.zip, loại binary/build không cần thiết.
+- Thêm CI kiểm tra đủ 10 locale và đồng bộ version.
 
-### Fixed
-- Sửa lỗi `Could not establish connection. Receiving end does not exist` khi background gửi trạng thái tới tab không có content script.
-- Không tạo session giả cho tab ngoài Douyin.
-- Bọc Promise rejection khi broadcast trạng thái sang content script.
-- Sửa installer với PyInstaller 6.22+: luôn chuyển working directory khỏi `C:\Windows\System32` trước khi build.
+## 1.0.2
 
-### Changed
-- Chuẩn hóa tài liệu tiếng Việt cho bản GitHub.
-- Bổ sung quy trình đóng gói Release, checksum và gói Extension-only / Windows Full / Source.
-
-## [1.0.1] - 2026-08-09
-
-### Fixed
-- Sửa quy trình build Native Helper khi installer được khởi chạy từ working directory không phù hợp.
-
-## [1.0.0] - 2026-08-09
-
-### Added
-- Chrome Extension Manifest V3.
-- Bắt media bằng Chrome DevTools Protocol.
-- Quét DOM, performance entries, JSON API và hydration data.
-- Chấm điểm và chọn ứng viên chất lượng cao nhất.
-- Native Messaging Host trên Windows.
-- Tải MP4 bằng HTTP Range song song.
-- HLS fallback và hỗ trợ remux qua FFmpeg khi phù hợp.
-- Chrome downloads fallback.
+- Sửa lỗi `Receiving end does not exist` khi gửi message tới tab không có content script.
+- Sửa installer với PyInstaller 6.22+ khi working directory là `System32`.
+- Chuẩn hóa repo, GitHub Actions và Release artifacts.

@@ -1,32 +1,22 @@
-let tabId = null;
-let state = {attached:false,candidates:[],nativeReady:false};
-const $ = s => document.querySelector(s);
-const fmtBytes = n => { if(!n)return 'không rõ dung lượng'; const u=['B','KB','MB','GB']; let i=0,x=n; while(x>=1024&&i<u.length-1){x/=1024;i++} return `${x.toFixed(i?1:0)} ${u[i]}`; };
-const send = msg => new Promise(resolve => chrome.runtime.sendMessage({...msg,tabId},resolve));
-function render(){
-  $('#native').classList.toggle('ok',!!state.nativeReady);
-  $('#native').title = state.nativeReady ? 'Native Helper: sẵn sàng' : 'Native Helper: chưa cài / chưa kết nối';
-  $('#status').textContent = state.attached ? `Đang bắt luồng • ${state.nativeReady?'Turbo native':'Chrome fallback'}` : 'Chưa bắt luồng';
-  $('#capture').textContent = state.attached ? 'Dừng bắt' : 'Bắt luồng';
-  $('#count').textContent = state.candidates.length;
-  $('#best').disabled = !state.candidates.length;
-  const list=$('#list'); list.innerHTML='';
-  if(!state.candidates.length){list.innerHTML='<div class="empty">Chưa có luồng video.</div>';return;}
-  state.candidates.slice(0,10).forEach((c,i)=>{
-    const d=document.createElement('div'); d.className='item'+(i===0?' best':'');
-    const type=(c.mime||'video').replace('application/vnd.apple.','').replace('video/','').toUpperCase();
-    const res=c.width&&c.height?`${c.width}×${c.height} • `:''; const br=c.bitrate?`${(c.bitrate/1000000).toFixed(1)} Mbps • `:'';
-    d.innerHTML=`<div class="meta"><div class="name">${type}${i===0?'<span class="badge">BEST</span>':''}</div><div class="sub">${res}${br}${fmtBytes(c.totalSize||c.size)} • score ${c.score}</div></div><button>Tải</button>`;
-    d.querySelector('button').onclick=async()=>{const r=await send({type:'DOWNLOAD',candidateId:c.id});if(!r?.ok)alert(r?.error||'Lỗi tải');};
-    list.appendChild(d);
-  });
-}
-async function refresh(){
-  const [tab]=await chrome.tabs.query({active:true,currentWindow:true}); tabId=tab?.id||null;
-  if(!tabId){$('#status').textContent='Không tìm thấy tab';return;}
-  const r=await send({type:'GET_STATE'}); if(r?.ok){state={attached:r.attached,candidates:r.candidates||[],nativeReady:r.nativeReady};render();}
-}
-$('#capture').onclick=async()=>{const type=state.attached?'STOP_CAPTURE':'START_CAPTURE';const r=await send({type});if(!r?.ok)alert(r?.error||'Lỗi');await refresh();};
-$('#best').onclick=async()=>{const r=await send({type:'DOWNLOAD'});if(!r?.ok)alert(r?.error||'Lỗi tải');};
-chrome.runtime.onMessage.addListener(msg=>{if(msg.type==='STATE'&&(!msg.tabId||msg.tabId===tabId)){state.attached=msg.attached;state.candidates=msg.candidates||[];state.nativeReady=msg.nativeReady;render();}if(msg.type==='NATIVE_EVENT'&&msg.event){const e=msg.event;if(e.type==='complete')$('#status').textContent=`Tải xong: ${e.filename||'video'}`;else if(e.type==='progress')$('#status').textContent=`Đang tải ${Number(e.percent||0).toFixed(1)}% ${e.speed||''}`;else if(e.type==='error')$('#status').textContent=`Lỗi: ${e.error||''}`;}});
-refresh();
+let tabId=null,lang='vi';
+let state={attached:false,candidates:[],nativeReady:false,isDouyin:false,download:null};
+const $=s=>document.querySelector(s);
+const t=(key,vars={})=>DYHD_I18N.t(lang,key,vars);
+const fmtBytes=n=>{if(!Number(n))return t('unknownSize');const u=['B','KB','MB','GB'];let i=0,x=Number(n);while(x>=1024&&i<u.length-1){x/=1024;i++}return `${x.toFixed(i?1:0)} ${u[i]}`};
+const fmtEta=n=>{n=Number(n);if(!Number.isFinite(n)||n<=0)return '—';if(n<60)return `${Math.ceil(n)} ${t('seconds')}`;const m=Math.floor(n/60),s=Math.ceil(n%60);return `${m}m ${s}s`};
+const send=msg=>new Promise(resolve=>chrome.runtime.sendMessage({...msg,tabId},resolve));
+function populateLanguages(){const s=$('#language');s.innerHTML='';for(const l of DYHD_I18N.LANGUAGES){const o=document.createElement('option');o.value=l.code;o.textContent=l.name;s.appendChild(o)}s.value=lang}
+function applyStaticText(){document.documentElement.lang=lang;$('#subtitle').textContent=t('appSubtitle');$('#capture').textContent=state.attached?t('captureStop'):t('captureStart');$('#best').textContent=t('downloadBest');$('#tip').textContent=t('tip');$('#streamsLabel').textContent=t('streams');$('#progressLabel').textContent=t('progress');$('#downloadedLabel').textContent=t('downloaded');$('#speedLabel').textContent=t('speed');$('#etaLabel').textContent=t('eta');$('#openFile').textContent=t('openFile');$('#openFolder').textContent=t('openFolder');$('#copyPath').textContent=t('copyPath')}
+function candidateLabel(c){if(c.width&&c.height)return `${c.width}×${c.height}`;if(c.quality)return String(c.quality).toUpperCase();return t('qualityUnknown')}
+function renderDownload(d){const card=$('#progressCard');if(!d){card.classList.add('hidden');return}card.classList.remove('hidden');const pct=Number.isFinite(Number(d.percent))?Math.max(0,Math.min(100,Number(d.percent))):0;$('#progressBar').style.width=`${pct}%`;$('#progressPercent').textContent=d.type==='complete'?'100%':`${pct.toFixed(pct>=10?0:1)}%`;$('#downloadedValue').textContent=d.bytes?`${fmtBytes(d.bytes)}${d.total?` / ${fmtBytes(d.total)}`:''}`:'—';$('#speedValue').textContent=d.speed||(d.speedBps?`${(d.speedBps/1048576).toFixed(1)} MB/s`:'—');$('#etaValue').textContent=fmtEta(d.etaSeconds);let title=t('preparing');if(d.type==='progress'||d.type==='started')title=t('downloading');if(d.type==='complete')title=t('completed');if(d.type==='error')title=t('failed');$('#progressTitle').textContent=title;const done=d.type==='complete';$('#resultActions').classList.toggle('hidden',!done);$('#filePath').classList.toggle('hidden',!done||!d.path);$('#filePath').textContent=d.path||''}
+function render(){applyStaticText();$('#nativeDot').classList.toggle('ok',!!state.nativeReady);$('#nativeText').textContent=state.nativeReady?t('nativeReady'):t('nativeMissing');$('#status').textContent=!state.isDouyin?t('idle'):(state.attached?t('capturing'):(state.candidates.length?t('readyToDownload',{count:state.candidates.length}):t('idle')));$('#pageWarning').classList.toggle('hidden',state.isDouyin);$('#pageWarning').textContent=t('notDouyin');$('#capture').disabled=!state.isDouyin;$('#best').disabled=!state.isDouyin||!state.candidates.length;$('#capture').textContent=state.attached?t('captureStop'):t('captureStart');$('#count').textContent=state.candidates.length;const list=$('#list');list.innerHTML='';if(!state.candidates.length){const e=document.createElement('div');e.className='empty';e.textContent=t('noStreams');list.appendChild(e)}else state.candidates.slice(0,12).forEach((c,i)=>{const d=document.createElement('div');d.className='item'+(i===0?' best':'');const type=(c.mime||(/m3u8/i.test(c.url||'')?'HLS':'MP4')).replace('application/vnd.apple.','').replace('video/','').toUpperCase();const res=c.width&&c.height?`${c.width}×${c.height} • `:'';const br=c.bitrate?`${(c.bitrate/1000000).toFixed(1)} Mbps • `:'';d.innerHTML=`<div class="meta"><div class="name"><span>${type}</span>${i===0?`<span class="badge">${t('best')}</span>`:''}<span class="quality">${candidateLabel(c)}</span></div><div class="sub">${res}${br}${fmtBytes(c.totalSize||c.size)} • ${t('score')} ${c.score}</div></div><button>${t('download')}</button>`;d.querySelector('button').onclick=()=>startDownload(c.id);list.appendChild(d)});renderDownload(state.download)}
+async function refresh(){const [tab]=await chrome.tabs.query({active:true,currentWindow:true});tabId=tab?.id||null;if(!tabId){$('#status').textContent=t('noTab');return}const r=await send({type:'GET_STATE'});if(r?.ok){state={attached:!!r.attached,candidates:r.candidates||[],nativeReady:!!r.nativeReady,isDouyin:!!r.isDouyin,download:r.download||null};render()}}
+async function startDownload(candidateId=null){const r=await send({type:'DOWNLOAD',candidateId});if(!r?.ok){state.download={type:'error',error:r?.error||t('cannotDownload')};render();return}state.download={type:'started',downloadId:r.downloadId,mode:r.mode,percent:0,bytes:0,total:r.candidate?.totalSize||r.candidate?.size||0};render()}
+$('#capture').onclick=async()=>{const r=await send({type:state.attached?'STOP_CAPTURE':'START_CAPTURE'});if(!r?.ok)alert(r?.error||t('cannotCapture'));await refresh()};
+$('#best').onclick=()=>startDownload(null);
+$('#language').onchange=async e=>{lang=await DYHD_I18N.setLanguage(e.target.value);render()};
+$('#openFile').onclick=async()=>{if(state.download?.path)await send({type:'OPEN_FILE',path:state.download.path,downloadId:state.download.downloadId,mode:state.download.mode,browserId:state.download.browserId})};
+$('#openFolder').onclick=async()=>{if(state.download?.path||state.download?.browserId)await send({type:'OPEN_FOLDER',path:state.download?.path||'',downloadId:state.download?.downloadId,mode:state.download?.mode,browserId:state.download?.browserId})};
+$('#copyPath').onclick=async()=>{if(!state.download?.path)return;await navigator.clipboard.writeText(state.download.path);const b=$('#copyPath'),old=b.textContent;b.textContent=t('copied');setTimeout(()=>b.textContent=old,1200)};
+chrome.runtime.onMessage.addListener(msg=>{if(msg.type==='STATE'&&(!msg.tabId||msg.tabId===tabId)){state.attached=!!msg.attached;state.candidates=msg.candidates||[];state.nativeReady=!!msg.nativeReady;if(typeof msg.isDouyin==='boolean')state.isDouyin=msg.isDouyin;if(msg.download)state.download=msg.download;render()}if(msg.type==='NATIVE_EVENT'&&msg.event&&['started','progress','complete','error'].includes(msg.event.type)&&(!msg.tabId||msg.tabId===tabId)){state.download={...(state.download||{}),...msg.event};render()}});
+(async()=>{lang=await DYHD_I18N.getLanguage();populateLanguages();applyStaticText();await refresh()})();

@@ -1,1 +1,59 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Douyin HD Pro</title><link rel="stylesheet" href="popup.css"></head><body><main><header><div><h1>Douyin HD Pro</h1><p id="status">Đang kiểm tra…</p></div><span id="native" class="dot" title="Native Helper"></span></header><div class="actions"><button id="capture">Bắt luồng</button><button id="best" class="primary">Tải bản tốt nhất</button></div><div class="hint">Mẹo: cho video chạy 2–3 giây để bắt đủ các bản CDN.</div><section><div class="section-title"><span>Luồng phát hiện</span><span id="count">0</span></div><div id="list" class="list"><div class="empty">Chưa có luồng video.</div></div></section><footer><span>Extension ID: kfegbbjedamdmoiaomeaaopdeeeeedkm</span></footer></main><script src="popup.js"></script></body></html>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Douyin HD Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<main>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="logo">D</div>
+      <div><h1>Douyin HD Pro</h1><p id="subtitle">Tải video Douyin chất lượng cao</p></div>
+    </div>
+    <select id="language" aria-label="Ngôn ngữ"></select>
+  </header>
+
+  <section class="status-card">
+    <div class="status-main">
+      <span id="nativeDot" class="dot"></span>
+      <div><strong id="status">Đang kiểm tra…</strong><small id="nativeText">Đang kiểm tra Native Helper</small></div>
+    </div>
+    <span class="version">v1.0.3</span>
+  </section>
+
+  <section id="pageWarning" class="warning hidden"></section>
+
+  <section class="actions">
+    <button id="capture" class="secondary">Bắt luồng</button>
+    <button id="best" class="primary" disabled>Tải bản tốt nhất</button>
+  </section>
+  <p id="tip" class="tip">Cho video chạy 2–3 giây để công cụ nhận đủ các luồng CDN và chọn bản tốt nhất.</p>
+
+  <section id="progressCard" class="progress-card hidden">
+    <div class="progress-head"><div><span id="progressLabel">Tiến trình tải</span><strong id="progressTitle">Đang chuẩn bị tải…</strong></div><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div id="progressBar"></div></div>
+    <div class="progress-grid">
+      <div><span id="downloadedLabel">Đã tải</span><strong id="downloadedValue">0 B</strong></div>
+      <div><span id="speedLabel">Tốc độ</span><strong id="speedValue">—</strong></div>
+      <div><span id="etaLabel">Còn lại</span><strong id="etaValue">—</strong></div>
+    </div>
+    <div id="resultActions" class="result-actions hidden">
+      <button id="openFile">Mở video</button><button id="openFolder">Mở thư mục</button><button id="copyPath" class="ghost">Sao chép đường dẫn</button>
+    </div>
+    <div id="filePath" class="file-path hidden"></div>
+  </section>
+
+  <section class="streams-section">
+    <div class="section-title"><span id="streamsLabel">Luồng phát hiện</span><span id="count" class="count">0</span></div>
+    <div id="list" class="list"><div id="empty" class="empty">Chưa phát hiện luồng video.</div></div>
+  </section>
+
+  <footer><span>Douyin HD Pro</span><span>•</span><span id="footerVersion">v1.0.3</span></footer>
+</main>
+<script src="i18n.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

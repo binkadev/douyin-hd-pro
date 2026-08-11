@@ -6,7 +6,7 @@ from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
-HOST_VERSION = '1.0.2'
+HOST_VERSION = '1.0.3'
 WRITE_LOCK = threading.Lock()
 ACTIVE = set()
 ACTIVE_LOCK = threading.Lock()
@@ -112,11 +112,15 @@ class Progress:
             elapsed = max(0.01, now - self.started)
             speed = self.done / elapsed
             percent = (self.done * 100 / self.total) if self.total else None
+        eta = ((self.total - self.done) / speed) if self.total and speed > 0 and self.done < self.total else 0
         send_message({
             'type': 'progress', 'downloadId': self.id,
             'bytes': self.done, 'total': self.total,
             'percent': percent,
-            'speed': human_speed(speed)
+            'speed': human_speed(speed),
+            'speedBps': int(speed),
+            'etaSeconds': round(eta, 1) if eta else 0,
+            'elapsedSeconds': round(elapsed, 1)
         })
 
 
@@ -134,7 +138,6 @@ def probe_range(url, headers):
             status = getattr(r, 'status', r.getcode())
             cr = r.headers.get('Content-Range', '')
             total = parse_total_from_content_range(cr)
-            # consume tiny body so connection closes cleanly
             r.read(4)
             return status == 206 and total > 1, total
     except Exception:
@@ -159,7 +162,6 @@ def single_download(url, headers, output, progress, expected=0):
 
 def ranged_download(url, headers, output, total, progress):
     workers = min(16, max(4, (os.cpu_count() or 4) * 2))
-    # Avoid tiny parts; 8 MB minimum per range.
     workers = min(workers, max(1, total // (8 * 1024 * 1024)))
     if workers < 2:
         return single_download(url, headers, output, progress, total)
@@ -300,7 +302,10 @@ def hls_download(url, headers, output_stem, download_id):
             done_segments += 1
             prog.done = done_segments
             pct = done_segments * 100 / len(segments)
-        send_message({'type':'progress','downloadId':download_id,'bytes':done_segments,'total':len(segments),'percent':pct,'speed':f'{done_segments}/{len(segments)} segments'})
+        elapsed = max(0.01, time.monotonic() - prog.started)
+        rate = done_segments / elapsed
+        eta = (len(segments) - done_segments) / rate if rate > 0 else 0
+        send_message({'type':'progress','downloadId':download_id,'bytes':done_segments,'total':len(segments),'percent':pct,'speed':f'{done_segments}/{len(segments)} segments','speedBps':0,'etaSeconds':round(eta,1) if eta else 0,'unit':'segments'})
         return p
 
     try:
@@ -351,7 +356,6 @@ def direct_download(msg, folder):
     mime = (msg.get('mime') or '').lower()
     is_hls = 'mpegurl' in mime or '.m3u8' in url.lower()
     if is_hls:
-        # Find a unique stem before HLS picks .mp4/.ts.
         candidate = unique_path(folder, stem, '.mp4')
         output_stem = candidate.with_suffix('')
         return hls_download(url, headers, output_stem, download_id)
@@ -365,7 +369,6 @@ def direct_download(msg, folder):
         try:
             return ranged_download(url, headers, output, total, progress)
         except Exception:
-            # Some CDNs advertise ranges but reject parallel ranges. Retry as a normal stream.
             progress = Progress(download_id, expected)
             return single_download(url, headers, output, progress, expected)
     return single_download(url, headers, output, progress, expected)
@@ -378,7 +381,8 @@ def download_worker(msg):
         folder.mkdir(parents=True, exist_ok=True)
         send_message({'type':'started','downloadId':download_id})
         out = direct_download(msg, folder)
-        send_message({'type':'complete','downloadId':download_id,'filename':out.name,'path':str(out)})
+        size = out.stat().st_size if out.exists() else 0
+        send_message({'type':'complete','downloadId':download_id,'filename':out.name,'path':str(out),'bytes':size,'total':size,'percent':100})
     except (HTTPError, URLError) as e:
         send_message({'type':'error','downloadId':download_id,'error':f'Lỗi mạng/CDN: {e}'})
     except Exception as e:
@@ -386,6 +390,50 @@ def download_worker(msg):
     finally:
         with ACTIVE_LOCK:
             ACTIVE.discard(threading.current_thread())
+
+
+def downloads_root():
+    return (Path.home() / 'Downloads' / 'DouyinHD').resolve()
+
+
+def safe_open_path(raw_path):
+    if not raw_path:
+        raise RuntimeError('Đường dẫn tệp không hợp lệ.')
+    p = Path(raw_path).expanduser().resolve()
+    root = downloads_root()
+    try:
+        p.relative_to(root)
+    except ValueError:
+        raise RuntimeError('Chỉ cho phép mở tệp trong thư mục Downloads\\DouyinHD.')
+    return p
+
+
+def open_file(raw_path):
+    p = safe_open_path(raw_path)
+    if not p.exists() or not p.is_file():
+        raise RuntimeError('Không tìm thấy tệp đã tải.')
+    if os.name == 'nt':
+        os.startfile(str(p))
+    elif sys.platform == 'darwin':
+        subprocess.Popen(['open', str(p)])
+    else:
+        subprocess.Popen(['xdg-open', str(p)])
+
+
+def open_folder(raw_path=''):
+    root = downloads_root()
+    root.mkdir(parents=True, exist_ok=True)
+    p = safe_open_path(raw_path) if raw_path else root
+    target = p if p.is_dir() else p.parent
+    if os.name == 'nt':
+        if p.exists() and p.is_file():
+            subprocess.Popen(['explorer.exe', '/select,', str(p)])
+        else:
+            os.startfile(str(target))
+    elif sys.platform == 'darwin':
+        subprocess.Popen(['open', str(target)])
+    else:
+        subprocess.Popen(['xdg-open', str(target)])
 
 
 def handle(msg):
@@ -401,6 +449,18 @@ def handle(msg):
         t.start()
     elif action == 'ping':
         send_message({'type':'pong','ok':True,'version':HOST_VERSION})
+    elif action == 'open_file':
+        try:
+            open_file(msg.get('path') or '')
+            send_message({'type':'open_result','ok':True,'action':'open_file'})
+        except Exception as e:
+            send_message({'type':'open_result','ok':False,'action':'open_file','error':str(e)})
+    elif action == 'open_folder':
+        try:
+            open_folder(msg.get('path') or '')
+            send_message({'type':'open_result','ok':True,'action':'open_folder'})
+        except Exception as e:
+            send_message({'type':'open_result','ok':False,'action':'open_folder','error':str(e)})
     else:
         send_message({'type':'error','downloadId':msg.get('downloadId'),'error':'Lệnh native không hỗ trợ.'})
 
@@ -414,7 +474,6 @@ def main():
         if msg is None:
             break
         handle(msg)
-    # If Chrome disconnects while a download is active, finish the local file instead of killing it.
     while True:
         with ACTIVE_LOCK:
             threads = list(ACTIVE)

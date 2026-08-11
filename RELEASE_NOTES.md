@@ -1,23 +1,27 @@
-## Douyin HD Pro v1.0.2
+## Douyin HD Pro v1.0.3
 
-Bản phát hành ổn định đầu tiên được chuẩn hóa để phân phối trên GitHub.
+Bản v1.0.3 tập trung vào trải nghiệm sử dụng hằng ngày và bản địa hóa.
 
-### Điểm chính
+### Nổi bật
 
-- Bắt trực tiếp các luồng media Douyin bằng Chrome DevTools Protocol.
-- Tự chấm điểm và ưu tiên bản chất lượng cao nhất được phát hiện.
-- Native Helper hỗ trợ tải MP4 bằng HTTP Range song song.
-- Hỗ trợ HLS và FFmpeg fallback khi cần remux MPEG-TS.
-- Sửa lỗi `Receiving end does not exist` trên Chrome Extension.
-- Sửa tương thích PyInstaller 6.22+ khi installer bị khởi chạy từ `System32`.
-- Bổ sung gói Windows Full, Extension-only, Source và SHA-256 checksum.
+- Popup mới hoàn toàn, mặc định **Tiếng Việt**.
+- Có **10 ngôn ngữ** và cho phép đổi trực tiếp trong popup.
+- Tiến trình tải theo thời gian thực: **% / dung lượng / tốc độ / ETA**.
+- Sau khi tải xong: **Mở video**, **Mở thư mục**, **Sao chép đường dẫn**.
+- Native Helper v1.0.3 giữ cơ chế tải Range song song và HLS, bổ sung telemetry tiến trình rõ hơn.
+- Theo dõi cả Native download và Chrome fallback.
+- Gói Windows Full có `CAI-DAT-WINDOWS.bat` để cài nhanh Native Helper.
 
-### Chọn file nào?
+### 10 ngôn ngữ
 
-- **Windows-Full.zip:** dành cho đa số người dùng Windows.
-- **Extension-Only.zip:** chỉ cần Extension/fallback Chrome.
-- **Source.zip:** dành cho developer hoặc người muốn tự audit/build.
-- **douyin_hd_native.exe:** Native Helper độc lập.
-- **SHA256SUMS.txt:** kiểm tra toàn vẹn artifact.
+Tiếng Việt, English, 简体中文, 繁體中文, 한국어, 日本語, ไทย, Bahasa Indonesia, Español, Français.
 
-> Lưu ý: binary phát hành chưa có Code Signing certificate thương mại nên Windows SmartScreen có thể hiển thị cảnh báo reputation. Người dùng có thể chọn build Native Helper trực tiếp từ source bằng `native/install_windows.bat`.
+### Nên tải file nào?
+
+- **Windows-Full.zip**: bản khuyên dùng cho Windows 10/11.
+- **Extension-Only.zip**: chỉ Extension.
+- **Source.zip**: dành cho developer/audit.
+- **douyin_hd_native.exe**: Native Helper độc lập.
+- **SHA256SUMS.txt**: checksum SHA-256.
+
+> Binary chưa có Code Signing certificate thương mại nên Windows SmartScreen có thể cảnh báo reputation. Source và workflow build đều công khai để kiểm tra.

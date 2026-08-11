@@ -6,10 +6,11 @@ on:
       version:
         description: 'Phiên bản phát hành, ví dụ 1.0.3'
         required: true
-        default: '1.0.2'
+        default: '1.0.3'
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
+    branches: [master]
+    paths: ['VERSION.txt']
 
 permissions:
   contents: write
@@ -20,54 +21,52 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Install PyInstaller
         run: python -m pip install --upgrade pip pyinstaller
-
-      - name: Build Native Helper
+      - name: Validate source
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin --workpath build/native --specpath build native/host.py
-
+          python -m py_compile native/host.py
+          node --check extension/background.js
+          node --check extension/background/core.js
+          node --check extension/background/capture.js
+          node --check extension/background/download.js
+          node --check extension/i18n.js
+          node --check extension/content.js
+          node --check extension/popup.js
+          $manifest = Get-Content extension/manifest.json -Raw | ConvertFrom-Json
+          if ($manifest.version -ne (Get-Content VERSION.txt -Raw).Trim()) { throw 'VERSION.txt và manifest.json không khớp.' }
+      - name: Build Native Helper
+        shell: pwsh
+        run: python -m PyInstaller --noconfirm --clean --onefile --name douyin_hd_native --distpath native/bin --workpath build/native --specpath build native/host.py
       - name: Determine version and tag
         id: version
         shell: pwsh
         run: |
-          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
-            $version = '${{ inputs.version }}'.TrimStart('v')
-          } else {
-            $version = '${{ github.ref_name }}'.TrimStart('v')
-          }
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') { $version='${{ inputs.version }}'.TrimStart('v') }
+          elseif ('${{ github.ref_type }}' -eq 'tag') { $version='${{ github.ref_name }}'.TrimStart('v') }
+          else { $version=(Get-Content VERSION.txt -Raw).Trim().TrimStart('v') }
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "tag=v$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-
       - name: Package artifacts
         shell: pwsh
         run: ./scripts/package_release.ps1 -Version '${{ steps.version.outputs.version }}'
-
-      - name: Copy standalone native helper
+      - name: Copy standalone Native Helper
         shell: pwsh
         run: Copy-Item native/bin/douyin_hd_native.exe release/douyin_hd_native.exe
-
       - name: Refresh checksums
         shell: pwsh
         run: |
-          Get-ChildItem release -File | Where-Object Name -ne 'SHA256SUMS.txt' | Sort-Object Name | ForEach-Object {
-            $h = Get-FileHash $_.FullName -Algorithm SHA256
-            "$($h.Hash.ToLower())  $($_.Name)"
-          } | Set-Content release/SHA256SUMS.txt -Encoding ascii
-
+          Get-ChildItem release -File | Where-Object Name -ne 'SHA256SUMS.txt' | Sort-Object Name | ForEach-Object { $h=Get-FileHash $_.FullName -Algorithm SHA256; "$($h.Hash.ToLower())  $($_.Name)" } | Set-Content release/SHA256SUMS.txt -Encoding ascii
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Douyin-HD-Pro-${{ steps.version.outputs.version }}
           path: release/*
-
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
