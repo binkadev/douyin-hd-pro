@@ -1,28 +1,37 @@
-## Douyin HD Pro v2.0.1
+## Douyin HD Pro v2.0.2
 
-v2.0.1 là bản hotfix cho trình cài đặt Windows, tập trung vào lỗi nâng cấp Native Helper khi bản cũ vẫn đang được Chrome sử dụng.
+v2.0.2 tập trung vào hai mục tiêu: **khóa đúng video đang xem** và **tăng tốc tải an toàn bằng Adaptive Range v2**.
 
-### Sửa lỗi quan trọng
+### Sửa lỗi tải nhầm video
 
-- Sửa lỗi `Copy-Item: The process cannot access the file ... douyin_hd_native.exe because it is being used by another process` khi cài đè hoặc nâng cấp.
-- Installer tự nhận diện đúng tiến trình Native Helper đang chạy từ `%LOCALAPPDATA%\DouyinHDPro` và dừng tiến trình cũ trước khi thay executable.
-- Dùng file staging `douyin_hd_native.new.exe` để tránh ghi đè trực tiếp lên executable đang hoạt động.
-- Có cơ chế retry nhiều lần khi Windows Defender/antivirus hoặc hệ thống còn giữ file trong thời gian ngắn.
-- Nếu vẫn không thể thay file, installer báo hướng xử lý cụ thể: đóng Chrome hoàn toàn rồi chạy lại, thay vì dừng ở lỗi PowerShell khó hiểu.
-- Áp dụng cùng cơ chế an toàn cho cả bản Windows Full và luồng tự build Native Helper từ source.
-- Kiểm tra mã trả về khi đăng ký Native Messaging Host trong Registry.
-- Nhắc rõ trình cài đặt **không cần Run as administrator**.
+- Khóa session vào `aweme_id` của URL `/video/<id>` khi có.
+- Candidate chỉ được chấp nhận từ media element đang active hoặc API node có `aweme_id` khớp chính xác.
+- Không dùng generic preload/recommendation media làm candidate tải.
+- Kiểm tra lại video hiện tại ngay trước khi tải; nếu người dùng đã chuyển video, tác vụ bị chặn.
+- Ưu tiên 0 candidate hơn tải một candidate chưa xác minh.
 
-### Không thay đổi nghiệp vụ tải video
+### Adaptive Range v2 — tăng tốc tải
 
-Toàn bộ cơ chế v2.0.0 vẫn được giữ nguyên: session riêng cho từng video, reset khi chuyển video, hàng đợi tải, lịch sử, chống tải trùng, quality manager, thư mục tùy chỉnh, diagnostics, 10 ngôn ngữ và giao diện tiếng Việt.
+- Hạ ngưỡng tải song song từ 16 MiB xuống 4 MiB, nên video ngắn 8–12 MiB cũng có thể tận dụng nhiều kết nối.
+- Tự chọn 4 / 6 / 10 / 16 / 24 Range connections theo dung lượng file.
+- Range tối thiểu khoảng 1.5 MiB để tránh tạo quá nhiều request nhỏ.
+- Block I/O tăng lên 2 MiB để giảm overhead Python/file write.
+- Retry 4 lần và resume từ byte đã tải của từng range.
+- Nếu CDN từ chối hoặc throttling Range bất thường, tự fallback sang một kết nối bình thường.
+- HLS tăng tối đa 20 segment workers tùy số segment.
+- Đồng hồ tốc độ bắt đầu sau bước probe Range để MB/s hiển thị sát tốc độ truyền thật hơn.
+
+### Độ an toàn
+
+- Không thay đổi cơ chế DRM/encryption: tool không vượt luồng mã hóa.
+- Native Helper v2.0.2 vẫn tương thích cùng major v2 và giữ installer nâng cấp an toàn của v2.0.1.
 
 ### Gói khuyên dùng
 
-- **Douyin-HD-Pro-v2.0.1-Windows-Full.zip** — Windows 10/11, khuyên dùng.
-- **Extension-Only.zip** — chỉ extension.
+- **Douyin-HD-Pro-v2.0.2-Windows-Full.zip** — Windows 10/11, khuyên dùng.
+- **Extension-Only.zip** — chỉ Chrome Extension.
 - **Source.zip** — source để audit/build.
 - **douyin_hd_native.exe** — Native Helper độc lập.
 - **SHA256SUMS.txt** — checksum SHA-256.
 
-> Native Helper chưa có Code Signing certificate thương mại nên SmartScreen vẫn có thể cảnh báo reputation. Source và pipeline build đều công khai.
+> Tốc độ thực tế vẫn phụ thuộc băng thông mạng, CDN, vị trí máy chủ và giới hạn theo kết nối. Adaptive Range có lợi rõ nhất khi CDN giới hạn tốc độ trên từng connection.
